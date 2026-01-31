@@ -1,0 +1,160 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+}
+
+.logoHeader {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    z-index: 10;
+}
+
+.logoText {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    letter-spacing: -0.05em;
+}
+
+.container>div {
+    display: flex;
+    flex: 1;
+}
+
+.formSection {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: var(--bg-color);
+}
+
+.formContainer {
+    width: 100%;
+    max-width: 420px;
+}
+
+.header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+}
+
+.form {
+    margin-bottom: 2rem;
+}
+
+.inputGroup {
+    margin-bottom: 1.5rem;
+}
+
+.label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid #e2e8f0;
+    background-color: var(--bg-soft);
+    transition: all 0.2s;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: var(--bg-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 234, 0.1);
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+}
+
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.forgot {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.googleBtn {
+    border-color: #e2e8f0;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.footer {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.link {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Image Section */
+.imageSection {
+    display: none;
+}
+
+@media (min-width: 992px) {
+    .imageSection {
+        display: flex;
+        flex: 1;
+        background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+        align-items: center;
+        justify-content: center;
+        color: white;
+        padding: 3rem;
+    }
+}
+
+.imageContent {
+    text-align: center;
+    max-width: 500px;
+}
+
+.imageContent h2 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+}
+
+.imageContent p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    line-height: 1.6;
+}

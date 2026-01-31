@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Navbar from '@/components/Navbar/Navbar';
-import Footer from '@/components/Footer/Footer';
+import ConditionalLayout from '@/components/ConditionalLayout';
 
 export const metadata: Metadata = {
   title: 'Scholarity - Unlock Your Potential',
@@ -16,9 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        <ConditionalLayout>{children}</ConditionalLayout>
       </body>
     </html>
   );

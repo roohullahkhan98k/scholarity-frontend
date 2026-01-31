@@ -1,0 +1,132 @@
+.logoHeader {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    z-index: 1001;
+    background-color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+}
+
+.logoText {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    letter-spacing: -0.05em;
+}
+
+.hero {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 6rem 0 8rem;
+    margin-bottom: -4rem;
+    /* Overlap effect */
+}
+
+.heroContent {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    color: #94a3b8;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4rem;
+    margin-bottom: 5rem;
+}
+
+@media (min-width: 992px) {
+    .grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.sectionTitle {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: var(--secondary-color);
+}
+
+.benefitItem {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.icon {
+    font-size: 2rem;
+    background-color: var(--bg-soft);
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.benefitItem h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.benefitItem p {
+    color: var(--text-secondary);
+}
+
+/* Form Card */
+.formCard {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid #e2e8f0;
+}
+
+.formTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.formGroup {
+    margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 234, 0.1);
+}

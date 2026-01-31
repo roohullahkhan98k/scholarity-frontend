@@ -18,13 +18,13 @@ export default function Navbar() {
 
                 <ul className={styles.navLinks}>
                     <li>
-                        <Link href="#" className={styles.navLink}>Become an Instructor</Link>
+                        <Link href="/become-instructor" className={styles.navLink}>Become an Instructor</Link>
                     </li>
                     <li>
-                        <Link href="#" className="btn btn-outline">Log in</Link>
+                        <Link href="/login" className="btn btn-outline">Log in</Link>
                     </li>
                     <li>
-                        <Link href="#" className="btn btn-primary">Sign up</Link>
+                        <Link href="/signup" className="btn btn-primary">Sign up</Link>
                     </li>
                 </ul>
             </div>

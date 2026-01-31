@@ -14,8 +14,8 @@ export default function Hero() {
                         From coding to calculus, master any subject with personalized guidance.
                     </p>
                     <div className={styles.ctaGroup}>
-                        <Link href="#" className="btn btn-primary">Start Learning</Link>
-                        <Link href="#" className={`btn ${styles.secondaryBtn}`}>View Tutors</Link>
+                        <Link href="/browse" className="btn btn-primary">Start Learning</Link>
+                        <Link href="/browse" className={`btn ${styles.secondaryBtn}`}>View Tutors</Link>
                     </div>
 
                     <div className={styles.stats}>
