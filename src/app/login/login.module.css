@@ -120,6 +120,16 @@
     color: var(--text-secondary);
 }
 
+.error {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: #fee2e2;
+    border-radius: var(--radius-md);
+    border: 1px solid #fecaca;
+}
+
 .link {
     color: var(--primary-color);
     font-weight: 600;

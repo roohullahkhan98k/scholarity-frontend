@@ -1,0 +1,141 @@
+.container {
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.headerRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    gap: 2rem;
+}
+
+.titleSection {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.iconWrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #2563ea 0%, #1e40af 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 234, 0.3);
+    flex-shrink: 0;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--secondary-color);
+    margin-bottom: 0.25rem;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.statsCompact {
+    display: flex;
+    gap: 1.5rem;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid #e2e8f0;
+    box-shadow: var(--shadow-sm);
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0 1rem;
+    border-right: 1px solid #e2e8f0;
+}
+
+.statItem:last-child {
+    border-right: none;
+}
+
+.statNum {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--secondary-color);
+    line-height: 1;
+}
+
+.statItem.warning .statNum {
+    color: #f59e0b;
+}
+
+.statItem.success .statNum {
+    color: #10b981;
+}
+
+.statText {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.error {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.5rem;
+    background-color: #fee2e2;
+    border-radius: var(--radius-lg);
+    border: 1px solid #fecaca;
+    font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+    .headerRow {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .statsCompact {
+        justify-content: space-around;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .iconWrapper {
+        width: 48px;
+        height: 48px;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .statsCompact {
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .statItem {
+        padding: 0 0.5rem;
+    }
+
+    .statNum {
+        font-size: 1.25rem;
+    }
+}

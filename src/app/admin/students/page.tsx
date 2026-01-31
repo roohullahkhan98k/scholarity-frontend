@@ -1,0 +1,271 @@
+"use client";
+import { useState, useEffect } from 'react';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { studentService, Student } from '@/services/studentService';
+import DataTable, { Column } from '@/components/admin/DataTable';
+import EditStudentModal from '@/components/admin/EditStudentModal';
+import { Users, Trash2, BookOpen, Award, Edit } from 'lucide-react';
+import styles from './students.module.css';
+
+function StudentsPageContent() {
+    const [students, setStudents] = useState<Student[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+    const [updating, setUpdating] = useState(false);
+
+    useEffect(() => {
+        loadStudents();
+    }, []);
+
+    const loadStudents = async () => {
+        try {
+            setLoading(true);
+            const data = await studentService.getStudents();
+            setStudents(data);
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to load students');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async (id: string, name: string) => {
+        if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
+            return;
+        }
+
+        try {
+            setDeletingId(id);
+            await studentService.deleteStudent(id);
+            await loadStudents();
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to delete student');
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
+    const handleUpdate = async (id: string, data: any) => {
+        try {
+            setUpdating(true);
+            await studentService.updateStudent(id, data);
+            await loadStudents();
+            setEditingStudent(null);
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to update student');
+        } finally {
+            setUpdating(false);
+        }
+    };
+
+    const totalEnrolled = students.reduce((acc, s) => acc + s.enrolledCourses, 0);
+    const totalCompleted = students.reduce((acc, s) => acc + s.completedCourses, 0);
+
+    const columns: Column<Student>[] = [
+        {
+            key: 'name',
+            header: 'Student',
+            width: '25%',
+            render: (row) => (
+                <div>
+                    <div style={{ fontWeight: 600, color: 'var(--secondary-color)', marginBottom: '0.25rem' }}>
+                        {row.name}
+                    </div>
+                    <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                        {row.email}
+                    </div>
+                </div>
+            ),
+        },
+        {
+            key: 'interests',
+            header: 'Interests',
+            width: '35%',
+            render: (row) => (
+                <div style={{
+                    maxWidth: '400px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    color: 'var(--text-secondary)'
+                }}>
+                    {row.interests}
+                </div>
+            ),
+        },
+        {
+            key: 'enrolledCourses',
+            header: 'Enrolled',
+            width: '12%',
+            render: (row) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <BookOpen size={16} color="var(--primary-color)" />
+                    <span style={{ fontWeight: 600, color: 'var(--secondary-color)' }}>
+                        {row.enrolledCourses}
+                    </span>
+                </div>
+            ),
+        },
+        {
+            key: 'completedCourses',
+            header: 'Completed',
+            width: '13%',
+            render: (row) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Award size={16} color="#10b981" />
+                    <span style={{ fontWeight: 600, color: 'var(--secondary-color)' }}>
+                        {row.completedCourses}
+                    </span>
+                </div>
+            ),
+        },
+        {
+            key: 'actions',
+            header: 'Actions',
+            width: '15%',
+            render: (row) => (
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                        onClick={() => setEditingStudent(row)}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            fontSize: '0.8125rem',
+                            fontWeight: 500,
+                            border: '1px solid var(--primary-color)',
+                            borderRadius: 'var(--radius-md)',
+                            background: 'white',
+                            color: 'var(--primary-color)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'var(--primary-color)';
+                            e.currentTarget.style.color = 'white';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'white';
+                            e.currentTarget.style.color = 'var(--primary-color)';
+                        }}
+                    >
+                        <Edit size={14} />
+                        Edit
+                    </button>
+                    <button
+                        onClick={() => handleDelete(row.id, row.name)}
+                        disabled={deletingId === row.id}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            fontSize: '0.8125rem',
+                            fontWeight: 500,
+                            border: '1px solid #dc2626',
+                            borderRadius: 'var(--radius-md)',
+                            background: 'white',
+                            color: '#dc2626',
+                            cursor: deletingId === row.id ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            opacity: deletingId === row.id ? 0.5 : 1,
+                            transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={(e) => {
+                            if (deletingId !== row.id) {
+                                e.currentTarget.style.background = '#dc2626';
+                                e.currentTarget.style.color = 'white';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            if (deletingId !== row.id) {
+                                e.currentTarget.style.background = 'white';
+                                e.currentTarget.style.color = '#dc2626';
+                            }
+                        }}
+                    >
+                        <Trash2 size={14} />
+                        {deletingId === row.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                </div>
+            ),
+        },
+    ];
+
+    return (
+        <div className={styles.container}>
+            <div className={styles.headerRow}>
+                <div className={styles.titleSection}>
+                    <div className={styles.iconWrapper}>
+                        <Users size={28} />
+                    </div>
+                    <div>
+                        <h1 className={styles.title}>Students</h1>
+                        <p className={styles.subtitle}>Manage student profiles and progress</p>
+                    </div>
+                </div>
+
+                {loading ? (
+                    <div className={styles.statsCompact}>
+                        <div className={styles.statItem}>
+                            <span className={styles.statNum}>-</span>
+                            <span className={styles.statText}>Total</span>
+                        </div>
+                        <div className={styles.statItem}>
+                            <span className={styles.statNum}>-</span>
+                            <span className={styles.statText}>Enrolled</span>
+                        </div>
+                        <div className={styles.statItem}>
+                            <span className={styles.statNum}>-</span>
+                            <span className={styles.statText}>Completed</span>
+                        </div>
+                    </div>
+                ) : (
+                    <div className={styles.statsCompact}>
+                        <div className={styles.statItem}>
+                            <span className={styles.statNum}>{students.length}</span>
+                            <span className={styles.statText}>Total</span>
+                        </div>
+                        <div className={`${styles.statItem} ${styles.warning}`}>
+                            <span className={styles.statNum}>{totalEnrolled}</span>
+                            <span className={styles.statText}>Enrolled</span>
+                        </div>
+                        <div className={`${styles.statItem} ${styles.success}`}>
+                            <span className={styles.statNum}>{totalCompleted}</span>
+                            <span className={styles.statText}>Completed</span>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {error && <div className={styles.error}>{error}</div>}
+
+            <DataTable
+                columns={columns}
+                data={students}
+                loading={loading}
+                emptyMessage="No students found."
+                pageSize={10}
+            />
+
+            {editingStudent && (
+                <EditStudentModal
+                    student={editingStudent}
+                    onClose={() => setEditingStudent(null)}
+                    onSave={handleUpdate}
+                    loading={updating}
+                />
+            )}
+        </div>
+    );
+}
+
+export default function StudentsPage() {
+    return (
+        <ProtectedRoute requiredRole="admin">
+            <StudentsPageContent />
+        </ProtectedRoute>
+    );
+}

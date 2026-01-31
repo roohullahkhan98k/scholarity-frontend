@@ -1,8 +1,42 @@
 "use client";
+import { useState } from 'react';
 import Link from 'next/link';
-import styles from '../login/login.module.css'; // Reuse login styles
+import { useRouter } from 'next/navigation';
+import styles from '../login/login.module.css';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function SignUpPage() {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const { signup } = useAuth();
+    const router = useRouter();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            const data = await signup(email, password, name);
+
+            // Redirect based on user role (new users are students by default)
+            if (data.user.role === 'admin') {
+                router.push('/admin/dashboard');
+            } else if (data.user.role === 'teacher') {
+                router.push('/teacher/dashboard');
+            } else {
+                router.push('/dashboard');
+            }
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Signup failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className={styles.container}>
             <Link href="/" className={styles.logoHeader}>
@@ -23,20 +57,45 @@ export default function SignUpPage() {
                         <p className={styles.subtitle}>Sign up to get started with Scholarity.</p>
                     </div>
 
-                    <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
+                    <form className={styles.form} onSubmit={handleSubmit}>
                         <div className={styles.inputGroup}>
                             <label htmlFor="name" className={styles.label}>Full Name</label>
-                            <input type="text" id="name" className={styles.input} placeholder="John Doe" />
+                            <input
+                                type="text"
+                                id="name"
+                                className={styles.input}
+                                placeholder="John Doe"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                            />
                         </div>
 
                         <div className={styles.inputGroup}>
                             <label htmlFor="email" className={styles.label}>Email Address</label>
-                            <input type="email" id="email" className={styles.input} placeholder="john@example.com" />
+                            <input
+                                type="email"
+                                id="email"
+                                className={styles.input}
+                                placeholder="john@example.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
                         </div>
 
                         <div className={styles.inputGroup}>
                             <label htmlFor="password" className={styles.label}>Password</label>
-                            <input type="password" id="password" className={styles.input} placeholder="••••••••" />
+                            <input
+                                type="password"
+                                id="password"
+                                className={styles.input}
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                minLength={6}
+                            />
                         </div>
 
                         <div className={styles.actions}>
@@ -45,7 +104,11 @@ export default function SignUpPage() {
                             </p>
                         </div>
 
-                        <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>Create Account</button>
+                        {error && <p className={styles.error}>{error}</p>}
+
+                        <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
+                            {loading ? 'Creating Account...' : 'Create Account'}
+                        </button>
 
                         <button type="button" className={`btn btn-outline ${styles.googleBtn}`} style={{ width: '100%', marginTop: '1rem' }}>
                             Sign up with Google

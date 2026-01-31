@@ -1,0 +1,159 @@
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--secondary-color);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    padding: 2rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logoText {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+}
+
+.badge {
+    background: var(--primary-color);
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.nav {
+    flex: 1;
+    padding: 1.5rem 0;
+    overflow-y: auto;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.navItem:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.navItem.active {
+    background: rgba(37, 99, 234, 0.2);
+    color: white;
+    border-left: 3px solid var(--primary-color);
+}
+
+.icon {
+    flex-shrink: 0;
+}
+
+.footer {
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.userInfo {
+    flex: 1;
+}
+
+.userName {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.userRole {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.logoutBtn {
+    width: 100%;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background 0.2s;
+}
+
+.logoutBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+    }
+
+    .logo {
+        padding: 1.5rem 1rem;
+    }
+
+    .logoText,
+    .badge {
+        display: none;
+    }
+
+    .navItem span:last-child,
+    .logoutBtn span:last-child {
+        display: none;
+    }
+
+    .navItem {
+        justify-content: center;
+        padding: 0.875rem 1rem;
+    }
+
+    .user {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .userInfo {
+        display: none;
+    }
+}
