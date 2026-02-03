@@ -1,7 +1,12 @@
+"use client";
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+import { LogOut, User as UserIcon, LayoutDashboard } from 'lucide-react';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
+    const { user, logout } = useAuth();
+
     return (
         <nav className={styles.navbar}>
             <div className={`container ${styles.navContainer}`}>
@@ -18,14 +23,36 @@ export default function Navbar() {
 
                 <ul className={styles.navLinks}>
                     <li>
-                        <Link href="/become-instructor" className={styles.navLink}>Become an Instructor</Link>
+                        <Link href="/courses" className={styles.navLink}>Browse Courses</Link>
                     </li>
-                    <li>
-                        <Link href="/login" className="btn btn-outline">Log in</Link>
-                    </li>
-                    <li>
-                        <Link href="/signup" className="btn btn-primary">Sign up</Link>
-                    </li>
+                    {!user ? (
+                        <>
+                            <li>
+                                <Link href="/become-instructor" className={styles.navLink}>Become an Instructor</Link>
+                            </li>
+                            <li>
+                                <Link href="/login" className="btn btn-outline">Log in</Link>
+                            </li>
+                            <li>
+                                <Link href="/signup" className="btn btn-primary">Sign up</Link>
+                            </li>
+                        </>
+                    ) : (
+                        <>
+                            <li className={styles.userSection}>
+                                <div className={styles.avatar}>
+                                    {user.name?.charAt(0).toUpperCase() || <UserIcon size={18} />}
+                                </div>
+                                <span className={styles.userName}>{user.name}</span>
+                            </li>
+                            <li>
+                                <button onClick={() => logout()} className="btn btn-outline" style={{ padding: '0.5rem 1rem', display: 'flex', gap: '0.5rem' }}>
+                                    <LogOut size={16} />
+                                    <span>Logout</span>
+                                </button>
+                            </li>
+                        </>
+                    )}
                 </ul>
             </div>
         </nav>

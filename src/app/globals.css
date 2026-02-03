@@ -1,44 +1,49 @@
 :root {
-  /* Brand Colors - Premium & Trustworthy */
-  --primary-color: #2563ea; /* Vibrant Royal Blue */
-  --primary-hover: #1d4ed8;
-  --secondary-color: #0f172a; /* Deep Slate (almost black) */
-  --accent-color: #f59e0b; /* Amber/Gold for ratings/highlights */
-  
+  /* Brand Colors - Premium Black, White & Blue */
+  --primary-color: #2b6cb0;
+  /* Vibrant Electric Blue */
+  --primary-hover: #1e40af;
+  /* Darker Blue */
+  --secondary-color: #000000;
+  /* Pure Black */
+  --accent-color: #3b82f6;
+  /* Lighter Blue for highlights */
+
   /* Backgrounds */
   --bg-color: #ffffff;
-  --bg-soft: #f8fafc; /* Very light slate gray */
+  --bg-soft: #f8fafc;
+  /* Very light cool gray */
   --bg-card: #ffffff;
-  
+
   /* Text */
-  --text-main: #1e293b;
-  --text-secondary: #64748b;
+  --text-main: #000000;
+  --text-secondary: #475569;
   --text-inverted: #ffffff;
 
   /* Spacing */
   --container-width: 1200px;
   --header-height: 80px;
-  
-  /* Shadows */
+
+  /* Shadows - Crisper & High Contrast */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-premium: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-premium: 0 20px 25px -5px rgb(0 0 0 / 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 
   /* Radius */
-  --radius-sm: 0.375rem;
+  --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
 }
 
 [data-theme='dark'] {
-  --bg-color: #0f172a;
-  --bg-soft: #1e293b;
-  --bg-card: #1e293b;
-  --text-main: #f8fafc;
-  --text-secondary: #94a3b8;
-  --secondary-color: #ffffff; 
+  --bg-color: #000000;
+  --bg-soft: #111111;
+  --bg-card: #1a1a1a;
+  --text-main: #ffffff;
+  --text-secondary: #9ca3af;
+  --secondary-color: #ffffff;
 }
 
 * {
@@ -122,7 +127,8 @@ button {
 }
 
 .text-gradient {
-  background: linear-gradient(to right, var(--primary-color), #9333ea);
+  background: linear-gradient(to right, var(--primary-color), #bcdaff);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }

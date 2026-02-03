@@ -1,7 +1,7 @@
 .sidebar {
     width: 260px;
     height: 100vh;
-    background: var(--secondary-color);
+    background: #000000;
     color: white;
     display: flex;
     flex-direction: column;
@@ -9,6 +9,7 @@
     left: 0;
     top: 0;
     z-index: 100;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logo {
@@ -23,43 +24,49 @@
     font-size: 1.5rem;
     font-weight: 800;
     letter-spacing: -0.05em;
+    color: white;
 }
 
 .badge {
     background: var(--primary-color);
+    color: white;
     padding: 0.25rem 0.625rem;
-    border-radius: var(--radius-full);
+    border-radius: 4px;
     font-size: 0.75rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
 }
 
 .nav {
     flex: 1;
-    padding: 1.5rem 0;
+    padding: 1.5rem 1rem;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .navItem {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.875rem 1.5rem;
-    color: rgba(255, 255, 255, 0.7);
+    padding: 0.875rem 1rem;
+    color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
     transition: all 0.2s;
     font-weight: 500;
+    border-radius: var(--radius-md);
 }
 
 .navItem:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.1);
     color: white;
 }
 
 .navItem.active {
-    background: rgba(37, 99, 234, 0.2);
+    background: var(--primary-color);
     color: white;
-    border-left: 3px solid var(--primary-color);
+    box-shadow: 0 4px 12px rgba(43, 108, 176, 0.3);
 }
 
 .icon {
@@ -69,6 +76,7 @@
 .footer {
     padding: 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: #000000;
 }
 
 .user {
@@ -82,12 +90,14 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--primary-color);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 1.125rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .userInfo {
@@ -97,18 +107,19 @@
 .userName {
     font-weight: 600;
     font-size: 0.875rem;
+    color: white;
 }
 
 .userRole {
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .logoutBtn {
     width: 100%;
     padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: var(--radius-md);
     color: white;
     font-weight: 500;
@@ -117,11 +128,13 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 
 .logoutBtn:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: white;
+    color: black;
+    border-color: white;
 }
 
 @media (max-width: 768px) {
@@ -131,6 +144,7 @@
 
     .logo {
         padding: 1.5rem 1rem;
+        justify-content: center;
     }
 
     .logoText,
@@ -145,15 +159,20 @@
 
     .navItem {
         justify-content: center;
-        padding: 0.875rem 1rem;
+        padding: 0.875rem;
     }
 
     .user {
         flex-direction: column;
         gap: 0.5rem;
+        justify-content: center;
     }
 
     .userInfo {
         display: none;
+    }
+
+    .footer {
+        padding: 1rem 0.5rem;
     }
 }

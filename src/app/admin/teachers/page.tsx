@@ -4,16 +4,30 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { teacherService, Teacher } from '@/services/teacherService';
 import DataTable, { Column } from '@/components/admin/DataTable';
 import EditTeacherModal from '@/components/admin/EditTeacherModal';
+import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
+import toast from 'react-hot-toast';
 import { GraduationCap, Star, Trash2, Users, Edit } from 'lucide-react';
 import styles from './teachers.module.css';
 
 function TeachersPageContent() {
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [deletingId, setDeletingId] = useState<string | null>(null);
     const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
     const [updating, setUpdating] = useState(false);
+
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        isLoading?: boolean;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        isLoading: false,
+    });
 
     useEffect(() => {
         loadTeachers();
@@ -25,25 +39,31 @@ function TeachersPageContent() {
             const data = await teacherService.getTeachers();
             setTeachers(data);
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to load teachers');
+            toast.error(err.response?.data?.message || 'Failed to load teachers');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleDelete = async (id: string, name: string) => {
-        if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
-            return;
-        }
+    const openDeleteModal = (id: string, name: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Delete Teacher',
+            message: `Are you sure you want to delete ${name}? This action cannot be undone.`,
+            onConfirm: () => handleDelete(id),
+        });
+    };
 
+    const handleDelete = async (id: string) => {
         try {
-            setDeletingId(id);
+            setConfirmModal(prev => ({ ...prev, isLoading: true }));
             await teacherService.deleteTeacher(id);
+            toast.success('Teacher deleted successfully');
+            setConfirmModal(prev => ({ ...prev, isOpen: false }));
             await loadTeachers();
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to delete teacher');
-        } finally {
-            setDeletingId(null);
+            toast.error(err.response?.data?.message || 'Failed to delete teacher');
+            setConfirmModal(prev => ({ ...prev, isLoading: false }));
         }
     };
 
@@ -51,10 +71,11 @@ function TeachersPageContent() {
         try {
             setUpdating(true);
             await teacherService.updateTeacher(id, data);
+            toast.success('Teacher updated successfully');
             await loadTeachers();
             setEditingTeacher(null);
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to update teacher');
+            toast.error(err.response?.data?.message || 'Failed to update teacher');
         } finally {
             setUpdating(false);
         }
@@ -179,8 +200,7 @@ function TeachersPageContent() {
                         Edit
                     </button>
                     <button
-                        onClick={() => handleDelete(row.id, row.name)}
-                        disabled={deletingId === row.id}
+                        onClick={() => openDeleteModal(row.id, row.name)}
                         style={{
                             padding: '0.5rem 1rem',
                             fontSize: '0.8125rem',
@@ -189,28 +209,23 @@ function TeachersPageContent() {
                             borderRadius: 'var(--radius-md)',
                             background: 'white',
                             color: '#dc2626',
-                            cursor: deletingId === row.id ? 'not-allowed' : 'pointer',
+                            cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.5rem',
-                            opacity: deletingId === row.id ? 0.5 : 1,
                             transition: 'all 0.2s',
                         }}
                         onMouseEnter={(e) => {
-                            if (deletingId !== row.id) {
-                                e.currentTarget.style.background = '#dc2626';
-                                e.currentTarget.style.color = 'white';
-                            }
+                            e.currentTarget.style.background = '#dc2626';
+                            e.currentTarget.style.color = 'white';
                         }}
                         onMouseLeave={(e) => {
-                            if (deletingId !== row.id) {
-                                e.currentTarget.style.background = 'white';
-                                e.currentTarget.style.color = '#dc2626';
-                            }
+                            e.currentTarget.style.background = 'white';
+                            e.currentTarget.style.color = '#dc2626';
                         }}
                     >
                         <Trash2 size={14} />
-                        {deletingId === row.id ? 'Deleting...' : 'Delete'}
+                        Delete
                     </button>
                 </div>
             ),
@@ -263,8 +278,6 @@ function TeachersPageContent() {
                 )}
             </div>
 
-            {error && <div className={styles.error}>{error}</div>}
-
             <DataTable
                 columns={columns}
                 data={teachers}
@@ -281,13 +294,24 @@ function TeachersPageContent() {
                     loading={updating}
                 />
             )}
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                isDanger={true}
+                confirmText="Yes, Delete"
+                isLoading={confirmModal.isLoading}
+            />
         </div>
     );
 }
 
 export default function TeachersPage() {
     return (
-        <ProtectedRoute requiredRole="admin">
+        <ProtectedRoute requiredRole="SUPER_ADMIN">
             <TeachersPageContent />
         </ProtectedRoute>
     );

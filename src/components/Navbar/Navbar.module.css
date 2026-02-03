@@ -7,7 +7,7 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .navContainer {
@@ -43,17 +43,18 @@
     padding: 0.75rem 1rem;
     padding-right: 3rem;
     border-radius: 50px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #cbd5e1;
     background-color: var(--bg-soft);
     font-size: 0.95rem;
     transition: all 0.2s;
+    color: var(--text-main);
 }
 
 .searchBar input:focus {
     outline: none;
     border-color: var(--primary-color);
     background-color: var(--bg-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 234, 0.1);
+    box-shadow: 0 0 0 4px rgba(43, 108, 176, 0.15);
 }
 
 .searchBtn {
@@ -81,4 +82,32 @@
 
 .navLink:hover {
     color: var(--primary-color);
+}
+
+.userSection {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-right: 0.5rem;
+    padding-right: 1rem;
+    border-right: 1px solid #e2e8f0;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.userName {
+    font-weight: 500;
+    color: var(--text-main);
+    font-size: 0.95rem;
 }

@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import { SignupData, LoginData, AuthResponse } from '@/types';
+import { SignupData, LoginData, AuthResponse, User, RoleName } from '@/types';
 
 export const authService = {
     // Sign up new user
@@ -16,8 +16,8 @@ export const authService = {
         return response.data;
     },
 
-    // Get current user profile
-    async getProfile() {
+    // Get current user profile (Phase 0.3)
+    async getProfile(): Promise<User> {
         const response = await api.get('/auth/me');
         return response.data;
     },
@@ -25,14 +25,11 @@ export const authService = {
     // Logout
     async logout() {
         try {
-            // Call logout API endpoint
             await api.post('/auth/logout');
         } catch (error) {
-            // Continue with logout even if API call fails
             console.error('Logout API error:', error);
         } finally {
-            // Always clear local storage
-            localStorage.removeItem('access_token');
+            localStorage.removeItem('token');
             localStorage.removeItem('user');
             if (typeof window !== 'undefined') {
                 window.location.href = '/login';
@@ -41,27 +38,56 @@ export const authService = {
     },
 
     // Save auth data to localStorage
-    saveAuth(data: AuthResponse) {
-        localStorage.setItem('access_token', data.access_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+    saveAuth(data: any) {
+        const token = data.token || data.access_token;
+        if (token) {
+            localStorage.setItem('token', token);
+        }
+
+        if (data.user) {
+            // Normalize user before saving
+            const normalizedUser = { ...data.user };
+            if (typeof normalizedUser.role === 'string') {
+                normalizedUser.role = { name: normalizedUser.role.toUpperCase() };
+            } else if (normalizedUser.role && typeof normalizedUser.role.name === 'string') {
+                normalizedUser.role.name = normalizedUser.role.name.toUpperCase();
+            }
+            localStorage.setItem('user', JSON.stringify(normalizedUser));
+        }
     },
 
     // Get current user from localStorage
-    getCurrentUser() {
+    getCurrentUser(): User | null {
         if (typeof window === 'undefined') return null;
         const userStr = localStorage.getItem('user');
-        return userStr ? JSON.parse(userStr) : null;
+        if (!userStr) return null;
+
+        try {
+            const user = JSON.parse(userStr);
+            // Robust normalization
+            if (typeof user.role === 'string') {
+                user.role = { name: user.role.toUpperCase() };
+            } else if (user.role && typeof user.role.name === 'string') {
+                user.role.name = user.role.name.toUpperCase();
+            }
+            return user as User;
+        } catch (error) {
+            console.error('Error parsing user data:', error);
+            return null;
+        }
     },
 
     // Check if user is authenticated
     isAuthenticated(): boolean {
         if (typeof window === 'undefined') return false;
-        return !!localStorage.getItem('access_token');
+        const token = localStorage.getItem('token');
+        return !!token && token !== 'undefined' && token !== 'null';
     },
 
     // Check if user has specific role
-    hasRole(role: string): boolean {
+    hasRole(roleName: RoleName): boolean {
         const user = this.getCurrentUser();
-        return user?.role === role;
+        const currentRole = user?.role?.name?.toUpperCase();
+        return currentRole === roleName.toUpperCase();
     },
 };

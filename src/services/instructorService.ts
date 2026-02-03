@@ -35,7 +35,7 @@ export const instructorService = {
     // Get all applications (admin only)
     async getApplications(status?: ApplicationStatus) {
         const params = status ? { status } : {};
-        const response = await api.get('/instructor/applications', { params });
+        const response = await api.get('/admin/instructor/applications', { params });
         return response.data;
     },
 
@@ -45,7 +45,7 @@ export const instructorService = {
         status: ApplicationStatus,
         rejectionReason?: string
     ) {
-        const response = await api.patch(`/instructor/applications/${id}`, {
+        const response = await api.patch(`/admin/instructor/applications/${id}`, {
             status,
             rejectionReason,
         });

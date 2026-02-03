@@ -3,6 +3,7 @@
     color: var(--text-inverted);
     padding: 4rem 0 2rem;
     margin-top: 5rem;
+    border-top: 5px solid var(--primary-color);
 }
 
 .container {
@@ -23,10 +24,11 @@
     font-size: 1.75rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
+    color: white;
 }
 
 .tagline {
-    color: #94a3b8;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .links {
@@ -38,6 +40,7 @@
     font-size: 1.1rem;
     margin-bottom: 1rem;
     font-weight: 600;
+    color: white;
 }
 
 .links ul {
@@ -47,18 +50,19 @@
 }
 
 .links li {
-    color: #94a3b8;
+    color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
-    transition: color 0.2s;
+    transition: all 0.2s;
 }
 
 .links li:hover {
-    color: white;
+    color: var(--primary-color);
+    transform: translateX(2px);
 }
 
 .copyright {
     text-align: center;
     padding-top: 2rem;
-    color: #64748b;
+    color: rgba(255, 255, 255, 0.4);
     font-size: 0.875rem;
 }

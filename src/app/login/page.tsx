@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from './login.module.css';
 import { useAuth } from '@/hooks/useAuth';
+import { authService } from '@/services/authService';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -19,12 +20,15 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const data = await login(email, password);
+            await login(email, password); // Perform login first
 
             // Redirect based on user role
-            if (data.user.role === 'admin') {
+            const currentUser = authService.getCurrentUser(); // Get the current user after successful login
+            const roleName = currentUser?.role?.name?.toUpperCase();
+
+            if (roleName === 'SUPER_ADMIN') {
                 router.push('/admin/dashboard');
-            } else if (data.user.role === 'teacher') {
+            } else if (roleName === 'TEACHER') {
                 router.push('/teacher/dashboard');
             } else {
                 router.push('/dashboard');

@@ -1,82 +1,84 @@
 "use client";
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { instructorService, InstructorApplication } from '@/services/instructorService';
-import { ApplicationStatus } from '@/types';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { BarChart3, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { BarChart3, Clock, CheckCircle, Plus } from 'lucide-react';
 import styles from './dashboard.module.css';
+
+import { adminService } from '@/services/adminService';
 
 function AdminDashboardContent() {
     const [applications, setApplications] = useState<InstructorApplication[]>([]);
+    const [userCount, setUserCount] = useState(0);
+    const [pendingCoursesCount, setPendingCoursesCount] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState<ApplicationStatus | 'ALL'>('ALL');
-    const [processingId, setProcessingId] = useState<string | null>(null);
     const [error, setError] = useState('');
 
     useEffect(() => {
-        loadApplications();
+        loadDashboardData();
     }, []);
 
-    const loadApplications = async () => {
+    const loadDashboardData = async () => {
         try {
             setLoading(true);
-            const data = await instructorService.getApplications();
-            setApplications(data.applications || []);
+            const [appData, userData, courseData] = await Promise.all([
+                instructorService.getApplications(),
+                adminService.getUsers({ limit: 1 }),
+                adminService.getPendingCourses()
+            ]);
+
+            setApplications(appData.applications || []);
+            setUserCount(userData.totalUsers || 0);
+            setPendingCoursesCount(Array.isArray(courseData) ? courseData.length : courseData.total || 0);
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to load applications');
+            console.error('Failed to load dashboard data:', err);
+            setError('Some data failed to load. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleReview = async (id: string, status: ApplicationStatus) => {
-        try {
-            setProcessingId(id);
-            await instructorService.reviewApplication(id, status);
-            await loadApplications();
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to review application');
-        } finally {
-            setProcessingId(null);
-        }
-    };
-
-    const filteredApplications = filter === 'ALL'
-        ? applications
-        : applications.filter(app => app.status === filter);
-
     const stats = {
-        total: applications.length,
-        pending: applications.filter(a => a.status === 'PENDING').length,
-        approved: applications.filter(a => a.status === 'APPROVED').length,
-        rejected: applications.filter(a => a.status === 'REJECTED').length,
+        totalApplications: applications.length,
+        pendingApps: applications.filter(a => a.status === 'PENDING').length,
+        totalUsers: userCount,
+        pendingCourses: pendingCoursesCount,
     };
 
     // Pie chart data
     const pieData = [
-        { name: 'Pending', value: stats.pending, color: '#f59e0b' },
-        { name: 'Approved', value: stats.approved, color: '#10b981' },
-        { name: 'Rejected', value: stats.rejected, color: '#ef4444' },
+        { name: 'Users', value: stats.totalUsers, color: '#000000' },
+        { name: 'Apps', value: stats.totalApplications, color: '#2b6cb0' },
+        { name: 'Courses', value: stats.pendingCourses, color: '#3b82f6' },
     ];
 
     // Line chart data (mock data for demonstration)
     const lineData = [
-        { month: 'Jan', applications: 12, approved: 8 },
-        { month: 'Feb', applications: 19, approved: 14 },
-        { month: 'Mar', applications: 15, approved: 11 },
-        { month: 'Apr', applications: 25, approved: 18 },
-        { month: 'May', applications: 22, approved: 16 },
-        { month: 'Jun', applications: stats.total, approved: stats.approved },
+        { month: 'Jan', value: 10 },
+        { month: 'Feb', value: 25 },
+        { month: 'Mar', value: 18 },
+        { month: 'Apr', value: 35 },
+        { month: 'May', value: 30 },
+        { month: 'Jun', value: stats.totalUsers },
     ];
+
+    if (loading) {
+        return <div className={styles.loading}>Loading dashboard data...</div>;
+    }
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Dashboard Overview</h1>
-                    <p className={styles.subtitle}>Monitor and manage instructor applications</p>
+                    <h1 className={styles.title}>Super Admin Panel</h1>
+                    <p className={styles.subtitle}>Complete platform control and monitoring</p>
                 </div>
+                <Link href="/courses/create" className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Plus size={18} />
+                    <span>Create New Course</span>
+                </Link>
             </div>
 
             <div className={styles.stats}>
@@ -85,8 +87,8 @@ function AdminDashboardContent() {
                         <BarChart3 size={28} />
                     </div>
                     <div>
-                        <div className={styles.statValue}>{stats.total}</div>
-                        <div className={styles.statLabel}>Total Applications</div>
+                        <div className={styles.statValue}>{stats.totalUsers}</div>
+                        <div className={styles.statLabel}>Total Platform Users</div>
                     </div>
                 </div>
                 <div className={`${styles.statCard} ${styles.pending}`}>
@@ -94,8 +96,8 @@ function AdminDashboardContent() {
                         <Clock size={28} />
                     </div>
                     <div>
-                        <div className={styles.statValue}>{stats.pending}</div>
-                        <div className={styles.statLabel}>Pending Review</div>
+                        <div className={styles.statValue}>{stats.pendingApps}</div>
+                        <div className={styles.statLabel}>Instructor Applications</div>
                     </div>
                 </div>
                 <div className={`${styles.statCard} ${styles.approved}`}>
@@ -103,17 +105,8 @@ function AdminDashboardContent() {
                         <CheckCircle size={28} />
                     </div>
                     <div>
-                        <div className={styles.statValue}>{stats.approved}</div>
-                        <div className={styles.statLabel}>Approved</div>
-                    </div>
-                </div>
-                <div className={`${styles.statCard} ${styles.rejected}`}>
-                    <div className={styles.statIcon}>
-                        <XCircle size={28} />
-                    </div>
-                    <div>
-                        <div className={styles.statValue}>{stats.rejected}</div>
-                        <div className={styles.statLabel}>Rejected</div>
+                        <div className={styles.statValue}>{stats.pendingCourses}</div>
+                        <div className={styles.statLabel}>Courses Pending Review</div>
                     </div>
                 </div>
             </div>
@@ -128,8 +121,7 @@ function AdminDashboardContent() {
                             <YAxis stroke="#64748b" />
                             <Tooltip />
                             <Legend />
-                            <Line type="monotone" dataKey="applications" stroke="#2563ea" strokeWidth={2} name="Total Applications" />
-                            <Line type="monotone" dataKey="approved" stroke="#10b981" strokeWidth={2} name="Approved" />
+                            <Line type="monotone" dataKey="value" stroke="#2563ea" strokeWidth={2} name="Total Growth" />
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
@@ -158,128 +150,13 @@ function AdminDashboardContent() {
                 </div>
             </div>
 
-            <div className={styles.applicationsSection}>
-                <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>Recent Applications</h2>
-                    <div className={styles.filters}>
-                        <button
-                            className={`${styles.filterBtn} ${filter === 'ALL' ? styles.active : ''}`}
-                            onClick={() => setFilter('ALL')}
-                        >
-                            All
-                        </button>
-                        <button
-                            className={`${styles.filterBtn} ${filter === 'PENDING' ? styles.active : ''}`}
-                            onClick={() => setFilter('PENDING')}
-                        >
-                            Pending
-                        </button>
-                        <button
-                            className={`${styles.filterBtn} ${filter === 'APPROVED' ? styles.active : ''}`}
-                            onClick={() => setFilter('APPROVED')}
-                        >
-                            Approved
-                        </button>
-                        <button
-                            className={`${styles.filterBtn} ${filter === 'REJECTED' ? styles.active : ''}`}
-                            onClick={() => setFilter('REJECTED')}
-                        >
-                            Rejected
-                        </button>
-                    </div>
-                </div>
-
-                {error && <p className={styles.error}>{error}</p>}
-
-                <div className={styles.tableContainer}>
-                    {loading ? (
-                        <div className={styles.loading}>Loading applications...</div>
-                    ) : filteredApplications.length === 0 ? (
-                        <div className={styles.empty}>
-                            <p>No applications found.</p>
-                        </div>
-                    ) : (
-                        <table className={styles.table}>
-                            <thead>
-                                <tr>
-                                    <th>Applicant</th>
-                                    <th>Expertise</th>
-                                    <th>Experience</th>
-                                    <th>Status</th>
-                                    <th>Applied</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredApplications.slice(0, 10).map((app) => (
-                                    <tr key={app.id}>
-                                        <td>
-                                            <div className={styles.applicantCell}>
-                                                <div className={styles.applicantName}>{app.user.name}</div>
-                                                <div className={styles.applicantEmail}>{app.user.email}</div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className={styles.expertise}>{app.expertise}</div>
-                                        </td>
-                                        <td>
-                                            <div className={styles.experience}>
-                                                {app.experience.length > 50
-                                                    ? `${app.experience.substring(0, 50)}...`
-                                                    : app.experience}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className={`${styles.badge} ${styles[app.status.toLowerCase()]}`}>
-                                                {app.status}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div className={styles.date}>
-                                                {new Date(app.createdAt).toLocaleDateString('en-US', {
-                                                    month: 'short',
-                                                    day: 'numeric',
-                                                    year: 'numeric'
-                                                })}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {app.status === 'PENDING' && (
-                                                <div className={styles.actions}>
-                                                    <button
-                                                        onClick={() => handleReview(app.id, 'APPROVED')}
-                                                        disabled={processingId === app.id}
-                                                        className={styles.approveBtn}
-                                                    >
-                                                        {processingId === app.id ? 'Processing...' : 'Approve'}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleReview(app.id, 'REJECTED')}
-                                                        disabled={processingId === app.id}
-                                                        className={styles.rejectBtn}
-                                                    >
-                                                        {processingId === app.id ? 'Processing...' : 'Reject'}
-                                                    </button>
-                                                </div>
-                                            )}
-                                            {app.status !== 'PENDING' && (
-                                                <div className={styles.noActions}>—</div>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
-            </div>
         </div>
     );
 }
 
 export default function AdminDashboard() {
     return (
-        <ProtectedRoute requiredRole="admin">
+        <ProtectedRoute requiredRole="SUPER_ADMIN">
             <AdminDashboardContent />
         </ProtectedRoute>
     );

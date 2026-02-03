@@ -239,7 +239,7 @@ function ApplicationsPageContent() {
 
 export default function ApplicationsPage() {
     return (
-        <ProtectedRoute requiredRole="admin">
+        <ProtectedRoute requiredRole="SUPER_ADMIN">
             <ApplicationsPageContent />
         </ProtectedRoute>
     );

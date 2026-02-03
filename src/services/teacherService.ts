@@ -32,7 +32,25 @@ export interface UpdateTeacherDto {
     totalStudents?: number;
 }
 
+export interface TeacherProfileResponse {
+    profile: {
+        bio: string;
+        expertise: string;
+        experience: string;
+    };
+    verification: {
+        status: 'PENDING' | 'APPROVED' | 'REJECTED';
+        rejectionReason: string | null;
+    };
+}
+
 export const teacherService = {
+    // 2.1 Teacher Profile (GET /teacher/profile)
+    async getTeacherProfile(): Promise<TeacherProfileResponse> {
+        const response = await api.get('/teacher/profile');
+        return response.data;
+    },
+
     // Get all teachers
     async getTeachers(): Promise<Teacher[]> {
         const response = await api.get('/teachers');

@@ -3,9 +3,11 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 
+import { RoleName } from '@/types';
+
 interface ProtectedRouteProps {
     children: React.ReactNode;
-    requiredRole?: 'admin' | 'teacher' | 'student';
+    requiredRole?: RoleName | RoleName[];
 }
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
@@ -19,14 +21,21 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
                 return;
             }
 
-            if (requiredRole && user?.role !== requiredRole) {
-                // Redirect to appropriate dashboard based on user's actual role
-                if (user?.role === 'admin') {
-                    router.push('/admin/dashboard');
-                } else if (user?.role === 'teacher') {
-                    router.push('/teacher/dashboard');
-                } else {
-                    router.push('/dashboard');
+            if (requiredRole) {
+                const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+                const userRoleName = user?.role?.name?.toUpperCase();
+                const hasRequiredRole = !!userRoleName && roles.some(role => role.toUpperCase() === userRoleName);
+
+                if (!hasRequiredRole) {
+                    // Redirect to appropriate dashboard based on user's actual role
+                    const currentRole = user?.role?.name;
+                    if (currentRole === 'SUPER_ADMIN') {
+                        router.push('/admin/dashboard');
+                    } else if (currentRole === 'TEACHER') {
+                        router.push('/teacher/dashboard');
+                    } else {
+                        router.push('/dashboard');
+                    }
                 }
             }
         }
@@ -45,7 +54,11 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
         );
     }
 
-    if (!isAuthenticated || (requiredRole && user?.role !== requiredRole)) {
+    const roles = requiredRole ? (Array.isArray(requiredRole) ? requiredRole : [requiredRole]) : [];
+    const userRoleName = user?.role?.name?.toUpperCase();
+    const hasRequiredRole = !requiredRole || (!!userRoleName && roles.some(role => role.toUpperCase() === userRoleName));
+
+    if (!isAuthenticated || !hasRequiredRole) {
         return null;
     }
 

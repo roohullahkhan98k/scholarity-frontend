@@ -89,7 +89,7 @@ function StudentDashboardContent() {
 
 export default function StudentDashboard() {
     return (
-        <ProtectedRoute requiredRole="student">
+        <ProtectedRoute requiredRole="STUDENT">
             <StudentDashboardContent />
         </ProtectedRoute>
     );

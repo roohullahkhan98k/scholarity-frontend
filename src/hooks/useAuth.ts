@@ -17,14 +17,16 @@ export function useAuth() {
 
     const login = async (email: string, password: string) => {
         const data = await authService.login({ email, password });
-        setUser(data.user);
+        // Use normalized user from localStorage after saveAuth
+        setUser(authService.getCurrentUser());
         setIsAuthenticated(true);
         return data;
     };
 
     const signup = async (email: string, password: string, name: string) => {
         const data = await authService.signup({ email, password, name });
-        setUser(data.user);
+        // Use normalized user from localStorage after saveAuth
+        setUser(authService.getCurrentUser());
         setIsAuthenticated(true);
         return data;
     };
@@ -42,6 +44,6 @@ export function useAuth() {
         login,
         signup,
         logout,
-        hasRole: (role: string) => user?.role === role,
+        hasRole: (role: string) => user?.role?.name?.toUpperCase() === role.toUpperCase(),
     };
 }

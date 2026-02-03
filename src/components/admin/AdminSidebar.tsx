@@ -2,7 +2,7 @@
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
-import { LayoutDashboard, FileText, Users, TrendingUp, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, TrendingUp, Settings, LogOut, BookOpen, Clock } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
 export default function AdminSidebar() {
@@ -16,16 +16,20 @@ export default function AdminSidebar() {
 
     const navItems = [
         { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+        { name: 'Users', path: '/admin/users', icon: Users },
         { name: 'Applications', path: '/admin/applications', icon: FileText },
-        { name: 'Teachers', path: '/admin/teachers', icon: Users },
-        { name: 'Students', path: '/admin/students', icon: Users },
+        { name: 'Academic Setup', path: '/admin/academic', icon: BookOpen },
+        { name: 'Academic Requests', path: '/admin/academic/requests', icon: Clock },
+        { name: 'Course Review', path: '/admin/courses/pending', icon: TrendingUp },
     ];
 
     return (
         <div className={styles.sidebar}>
             <div className={styles.logo}>
                 <span className={styles.logoText}>Scholarity</span>
-                <span className={styles.badge}>Admin</span>
+                <span className={styles.badge}>
+                    Super Admin
+                </span>
             </div>
 
             <nav className={styles.nav}>
@@ -49,7 +53,9 @@ export default function AdminSidebar() {
                     <div className={styles.avatar}>{user?.name?.charAt(0).toUpperCase()}</div>
                     <div className={styles.userInfo}>
                         <div className={styles.userName}>{user?.name}</div>
-                        <div className={styles.userRole}>Administrator</div>
+                        <div className={styles.userRole}>
+                            Super Administrator
+                        </div>
                     </div>
                 </div>
                 <button onClick={handleLogout} className={styles.logoutBtn}>

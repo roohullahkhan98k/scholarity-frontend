@@ -4,16 +4,31 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { studentService, Student } from '@/services/studentService';
 import DataTable, { Column } from '@/components/admin/DataTable';
 import EditStudentModal from '@/components/admin/EditStudentModal';
+import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
+import toast from 'react-hot-toast';
 import { Users, Trash2, BookOpen, Award, Edit } from 'lucide-react';
 import styles from './students.module.css';
 
 function StudentsPageContent() {
     const [students, setStudents] = useState<Student[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [editingStudent, setEditingStudent] = useState<Student | null>(null);
     const [updating, setUpdating] = useState(false);
+
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        isLoading?: boolean;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        isLoading: false,
+    });
 
     useEffect(() => {
         loadStudents();
@@ -25,25 +40,31 @@ function StudentsPageContent() {
             const data = await studentService.getStudents();
             setStudents(data);
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to load students');
+            toast.error(err.response?.data?.message || 'Failed to load students');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleDelete = async (id: string, name: string) => {
-        if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
-            return;
-        }
+    const openDeleteModal = (id: string, name: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Delete Student',
+            message: `Are you sure you want to delete ${name}? This action cannot be undone.`,
+            onConfirm: () => handleDelete(id),
+        });
+    };
 
+    const handleDelete = async (id: string) => {
         try {
-            setDeletingId(id);
+            setConfirmModal(prev => ({ ...prev, isLoading: true }));
             await studentService.deleteStudent(id);
+            toast.success('Student deleted successfully');
+            setConfirmModal(prev => ({ ...prev, isOpen: false }));
             await loadStudents();
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to delete student');
-        } finally {
-            setDeletingId(null);
+            toast.error(err.response?.data?.message || 'Failed to delete student');
+            setConfirmModal(prev => ({ ...prev, isLoading: false }));
         }
     };
 
@@ -51,10 +72,11 @@ function StudentsPageContent() {
         try {
             setUpdating(true);
             await studentService.updateStudent(id, data);
+            toast.success('Student updated successfully');
             await loadStudents();
             setEditingStudent(null);
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to update student');
+            toast.error(err.response?.data?.message || 'Failed to update student');
         } finally {
             setUpdating(false);
         }
@@ -156,8 +178,7 @@ function StudentsPageContent() {
                         Edit
                     </button>
                     <button
-                        onClick={() => handleDelete(row.id, row.name)}
-                        disabled={deletingId === row.id}
+                        onClick={() => openDeleteModal(row.id, row.name)}
                         style={{
                             padding: '0.5rem 1rem',
                             fontSize: '0.8125rem',
@@ -166,28 +187,23 @@ function StudentsPageContent() {
                             borderRadius: 'var(--radius-md)',
                             background: 'white',
                             color: '#dc2626',
-                            cursor: deletingId === row.id ? 'not-allowed' : 'pointer',
+                            cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.5rem',
-                            opacity: deletingId === row.id ? 0.5 : 1,
                             transition: 'all 0.2s',
                         }}
                         onMouseEnter={(e) => {
-                            if (deletingId !== row.id) {
-                                e.currentTarget.style.background = '#dc2626';
-                                e.currentTarget.style.color = 'white';
-                            }
+                            e.currentTarget.style.background = '#dc2626';
+                            e.currentTarget.style.color = 'white';
                         }}
                         onMouseLeave={(e) => {
-                            if (deletingId !== row.id) {
-                                e.currentTarget.style.background = 'white';
-                                e.currentTarget.style.color = '#dc2626';
-                            }
+                            e.currentTarget.style.background = 'white';
+                            e.currentTarget.style.color = '#dc2626';
                         }}
                     >
                         <Trash2 size={14} />
-                        {deletingId === row.id ? 'Deleting...' : 'Delete'}
+                        Delete
                     </button>
                 </div>
             ),
@@ -240,8 +256,6 @@ function StudentsPageContent() {
                 )}
             </div>
 
-            {error && <div className={styles.error}>{error}</div>}
-
             <DataTable
                 columns={columns}
                 data={students}
@@ -258,13 +272,24 @@ function StudentsPageContent() {
                     loading={updating}
                 />
             )}
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                isDanger={true}
+                confirmText="Yes, Delete"
+                isLoading={confirmModal.isLoading}
+            />
         </div>
     );
 }
 
 export default function StudentsPage() {
     return (
-        <ProtectedRoute requiredRole="admin">
+        <ProtectedRoute requiredRole="SUPER_ADMIN">
             <StudentsPageContent />
         </ProtectedRoute>
     );
