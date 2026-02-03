@@ -1,7 +1,11 @@
 import styles from './page.module.css';
 import Hero from '@/components/Hero/Hero';
+import StatsSection from '@/components/StatsSection/StatsSection';
+import CategoriesSection from '@/components/CategoriesSection/CategoriesSection';
+import FeaturedCourses from '@/components/FeaturedCourses/FeaturedCourses';
 import TeacherCard from '@/components/TeacherCard/TeacherCard';
 import ReviewCard from '@/components/ReviewCard/ReviewCard';
+import CTASection from '@/components/CTASection/CTASection';
 import { teachers } from '@/data/teachers';
 import { reviews } from '@/data/reviews';
 
@@ -10,8 +14,14 @@ export default function Home() {
     <>
       <Hero />
 
+      <StatsSection />
+
+      <CategoriesSection />
+
+      <FeaturedCourses />
+
       {/* Featured Teachers Section */}
-      <section className={styles.section}>
+      <section className={styles.section} style={{ background: 'white' }}>
         <div className="container">
           <div className={styles.sectionHeader}>
             <h2 className={styles.title}>Featured Instructors</h2>
@@ -45,6 +55,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <CTASection />
     </>
   );
 }

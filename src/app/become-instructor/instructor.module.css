@@ -1,142 +1,221 @@
-.logoHeader {
-    position: fixed;
-    top: 2rem;
-    left: 2rem;
-    z-index: 1001;
-    background-color: white;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
+.pageContainer {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1.5rem;
+    background: #0F172A;
+    /* Deep Navy/Black background */
+    position: relative;
+    overflow: hidden;
 }
 
-.logoText {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--primary-color);
-    letter-spacing: -0.05em;
+.floatingShape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    z-index: 0;
 }
 
-.hero {
-    background-color: var(--secondary-color);
-    color: white;
-    padding: 6rem 0 8rem;
-    margin-bottom: -4rem;
-    /* Overlap effect */
-}
-
-.heroContent {
-    text-align: center;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.title {
-    font-size: 3.5rem;
-    font-weight: 800;
-    margin-bottom: 1.5rem;
-    line-height: 1.1;
-}
-
-.subtitle {
-    font-size: 1.25rem;
-    color: #94a3b8;
-}
-
-.grid {
+.contentWrapper {
+    max-width: 1150px;
+    width: 100%;
     display: grid;
     grid-template-columns: 1fr;
     gap: 4rem;
-    margin-bottom: 5rem;
+    background: rgba(30, 41, 59, 0.7);
+    /* Darker slate */
+    backdrop-filter: blur(20px);
+    padding: 3.5rem;
+    border-radius: 32px;
+    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 1;
 }
 
-@media (min-width: 992px) {
-    .grid {
-        grid-template-columns: 1fr 1fr;
+@media (min-width: 1024px) {
+    .contentWrapper {
+        grid-template-columns: 1.1fr 0.9fr;
+        padding: 4.5rem;
     }
 }
 
-.sectionTitle {
-    font-size: 2rem;
+.infoSection h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.1;
     margin-bottom: 2rem;
-    color: var(--secondary-color);
+    letter-spacing: -0.03em;
+}
+
+.highlight {
+    color: #3B82F6;
+    /* Brighter blue */
+}
+
+.description {
+    font-size: 1.125rem;
+    color: #94A3B8;
+    margin-bottom: 3rem;
+    line-height: 1.6;
+    max-width: 500px;
+}
+
+.benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
 .benefitItem {
     display: flex;
+    align-items: center;
     gap: 1.5rem;
-    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
 }
 
-.icon {
-    font-size: 2rem;
-    background-color: var(--bg-soft);
-    width: 60px;
-    height: 60px;
+.benefitItem:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(10px);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.iconBox {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3B82F6;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+    flex-shrink: 0;
 }
 
-.benefitItem h3 {
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
+.benefitText h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 0.25rem;
 }
 
-.benefitItem p {
-    color: var(--text-secondary);
+.benefitText p {
+    font-size: 0.9375rem;
+    color: #64748B;
+    margin: 0;
 }
 
-/* Form Card */
-.formCard {
-    background-color: white;
-    padding: 2.5rem;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-xl);
-    border: 1px solid #e2e8f0;
+.formSection {
+    background: #FFFFFF;
+    padding: 3rem;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
-.formTitle {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+.formSection h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 2rem;
     text-align: center;
 }
 
-.formGroup {
-    margin-bottom: 1.5rem;
+.formGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-.formGroup label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.formGroup input,
-.formGroup select,
-.formGroup textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #cbd5e1;
-    border-radius: var(--radius-md);
-    font-family: inherit;
+.inputGroup label {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-.formGroup input:focus,
-.formGroup select:focus,
-.formGroup textarea:focus {
+.inputControl {
+    padding: 0.875rem 1.25rem;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    font-size: 1rem;
+    transition: all 0.2s;
+    color: #0F172A;
+}
+
+.inputControl:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 234, 0.1);
+    border-color: #3B82F6;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
-.error {
-    color: #dc2626;
-    font-size: 0.875rem;
+textarea.inputControl {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.submitBtn {
+    width: 100%;
+    padding: 1rem;
+    background: #3B82F6;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.125rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.submitBtn:hover {
+    background: #2563EB;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 234, 0.4);
+}
+
+.submitBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.successMessage {
+    text-align: center;
+    padding: 4rem;
+    background: #1E293B;
+    border-radius: 32px;
+    max-width: 500px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.successMessage h2 {
+    color: #3B82F6;
+    font-weight: 800;
+    font-size: 2.25rem;
     margin-bottom: 1rem;
-    padding: 0.75rem;
-    background-color: #fee2e2;
-    border-radius: var(--radius-md);
-    border: 1px solid #fecaca;
+}
+
+.successMessage p {
+    color: #94A3B8;
+    font-size: 1.125rem;
+    line-height: 1.6;
 }

@@ -17,6 +17,15 @@ export interface Teacher {
     updatedAt: string;
 }
 
+export interface JoinInstructorDto {
+    email: string;
+    password?: string; // Optional if already logged in, but streamline endpoint supports guests
+    name: string;
+    bio: string;
+    expertise: string;
+    experience: string;
+}
+
 export interface CreateTeacherDto {
     userId: string;
     bio: string;
@@ -72,6 +81,12 @@ export const teacherService = {
     // Update teacher (Admin only)
     async updateTeacher(id: string, data: UpdateTeacherDto): Promise<Teacher> {
         const response = await api.patch(`/teachers/${id}`, data);
+        return response.data;
+    },
+
+    // 2.1 Join as Instructor (POST /instructor/join)
+    async joinInstructor(data: JoinInstructorDto) {
+        const response = await api.post('/instructor/join', data);
         return response.data;
     },
 

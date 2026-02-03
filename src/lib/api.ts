@@ -30,6 +30,17 @@ api.interceptors.response.use(
             if (typeof window !== 'undefined') {
                 window.location.href = '/login';
             }
+        } else if (error.response?.status === 403) {
+            // Forbidden - likely inactive teacher
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                if (user.role?.name === 'TEACHER' && user.isActive === false) {
+                    if (typeof window !== 'undefined') {
+                        window.location.href = '/become-instructor/pending';
+                    }
+                }
+            }
         }
         return Promise.reject(error);
     }

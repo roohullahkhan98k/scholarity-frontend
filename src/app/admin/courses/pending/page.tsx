@@ -4,7 +4,8 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { adminService } from '@/services/adminService';
 import DataTable, { Column } from '@/components/admin/DataTable';
 import { TrendingUp, CheckCircle, XCircle, Eye, MessageSquare } from 'lucide-react';
-import { Course } from '@/services/courseService';
+import Link from 'next/link';
+import { Course } from '@/types';
 import styles from './pending.module.css';
 
 function PendingCoursesPageContent() {
@@ -117,10 +118,10 @@ function PendingCoursesPageContent() {
                         </button>
                     )}
 
-                    <button className={styles.viewBtn}>
+                    <Link href={`/admin/courses/${row.id}`} className={styles.viewBtn}>
                         <Eye size={16} />
                         <span>Preview</span>
-                    </button>
+                    </Link>
                 </div>
             )
         }

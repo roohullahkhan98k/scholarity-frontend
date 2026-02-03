@@ -1,0 +1,302 @@
+.container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 100px;
+    /* Space for fixed footer */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 1.5rem;
+}
+
+.titleSection h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+.badges {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.statusDraft {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.statusPending {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.statusApproved {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.statusRejected {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.categoryBadge {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Basic Info Grid */
+.infoGrid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.description {
+    color: #475569;
+    line-height: 1.6;
+}
+
+.metaInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.metaItem {
+    display: flex;
+    justify-content: space-between;
+}
+
+.label {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.value {
+    font-weight: 500;
+    color: #0f172a;
+}
+
+.thumbnailImage {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    margin-top: 1rem;
+}
+
+/* Curriculum */
+.unit {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.unitHeader {
+    background: #f8fafc;
+    padding: 1rem;
+    font-weight: 600;
+    color: #334155;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.lesson {
+    padding: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.lesson:last-child {
+    border-bottom: none;
+}
+
+.lessonHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    color: #0f172a;
+}
+
+.lessonType {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    background: #eee;
+    color: #666;
+}
+
+.lessonResources {
+    margin-left: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.resourceTag {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    background: #f0f9ff;
+    color: #0284c7;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #bae6fd;
+}
+
+/* Logs */
+.logItem {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.logMeta {
+    min-width: 150px;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.logContent {
+    flex: 1;
+}
+
+.logAction {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.logComment {
+    background: #fff1f2;
+    padding: 0.75rem;
+    border-radius: 6px;
+    color: #9f1239;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* Footer Actions */
+.fixedFooter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
+    z-index: 50;
+}
+
+.approveBtn,
+.rejectBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.approveBtn {
+    background: #16a34a;
+    color: white;
+}
+
+.approveBtn:hover {
+    background: #15803d;
+}
+
+.rejectBtn {
+    background: white;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+}
+
+.rejectBtn:hover {
+    background: #fef2f2;
+}
+
+/* Dialog specific */
+.rejectDialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    width: 90%;
+    max-width: 500px;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+}
+
+.textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin: 1rem 0;
+    min-height: 100px;
+}

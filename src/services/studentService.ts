@@ -28,7 +28,23 @@ export interface UpdateStudentDto {
     completedCourses?: number;
 }
 
+export interface StudentProfileResponse {
+    profile: {
+        bio: string;
+        interests: string;
+    };
+    activity: {
+        enrolledCourses: number;
+        completedCourses: number;
+    };
+}
+
 export const studentService = {
+    // Student Profile (GET /student/profile)
+    async getStudentProfile(): Promise<StudentProfileResponse> {
+        const response = await api.get('/student/profile');
+        return response.data;
+    },
     // Get all students
     async getStudents(): Promise<Student[]> {
         const response = await api.get('/students');

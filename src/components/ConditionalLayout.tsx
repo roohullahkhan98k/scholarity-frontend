@@ -10,8 +10,11 @@ export default function ConditionalLayout({
 }) {
     const pathname = usePathname();
     const isAuthPage = pathname === '/login' || pathname === '/signup';
+    const isAdminPage = pathname?.startsWith('/admin');
+    const isTeacherPage = pathname?.startsWith('/teacher');
+    const isBecomeInstructorPage = pathname === '/become-instructor';
 
-    if (isAuthPage) {
+    if (isAuthPage || isAdminPage || isTeacherPage || isBecomeInstructorPage) {
         return <>{children}</>;
     }
 

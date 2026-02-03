@@ -77,5 +77,6 @@ export interface Lesson {
     type: 'VIDEO' | 'DOCUMENT' | 'QUIZ';
     duration: number;
     videoUrl?: string;
+    resources?: { title: string; url: string; type: string }[];
     isFree: boolean;
 }

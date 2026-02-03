@@ -1,0 +1,21 @@
+.teacherLayout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8fafc;
+}
+
+.mainContent {
+    flex: 1;
+    margin-left: 260px;
+    /* Width of the sidebar */
+    padding: 2rem;
+    min-height: 100vh;
+}
+
+@media (max-width: 1024px) {
+    .mainContent {
+        margin-left: 0;
+        padding-top: 5rem;
+        /* Space for a potential mobile header */
+    }
+}

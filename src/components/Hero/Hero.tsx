@@ -17,18 +17,6 @@ export default function Hero() {
                         <Link href="/browse" className="btn btn-primary">Start Learning</Link>
                         <Link href="/browse" className={`btn ${styles.secondaryBtn}`}>View Tutors</Link>
                     </div>
-
-                    <div className={styles.stats}>
-                        <div className={styles.statItem}>
-                            <strong>10k+</strong> Students
-                        </div>
-                        <div className={styles.statItem}>
-                            <strong>500+</strong> Tutors
-                        </div>
-                        <div className={styles.statItem}>
-                            <strong>4.9/5</strong> Rating
-                        </div>
-                    </div>
                 </div>
 
                 <div className={styles.imageWrapper}>

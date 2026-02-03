@@ -28,7 +28,7 @@ export default function Navbar() {
                     {!user ? (
                         <>
                             <li>
-                                <Link href="/become-instructor" className={styles.navLink}>Become an Instructor</Link>
+                                <Link href="/become-instructor" className={styles.navLink}>Teach with Us</Link>
                             </li>
                             <li>
                                 <Link href="/login" className="btn btn-outline">Log in</Link>
