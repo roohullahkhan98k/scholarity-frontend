@@ -12,6 +12,7 @@ export interface Teacher {
     experience: string;
     rating: number;
     totalStudents: number;
+    totalCourses?: number;
     applicationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
     createdAt: string;
     updatedAt: string;

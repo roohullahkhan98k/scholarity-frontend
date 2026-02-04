@@ -1,0 +1,87 @@
+.bulkActionBar {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    padding: 1rem 2rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    color: white;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+.selectionCount {
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    padding-right: 1.5rem;
+}
+
+.actionButtons {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.actionBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 1.25rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.primary {
+    background: var(--primary-color, #2563eb);
+    color: white;
+}
+
+.primary:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+}
+
+.danger {
+    background: #ef4444;
+    color: white;
+}
+
+.danger:hover {
+    background: #dc2626;
+    transform: scale(1.02);
+}
+
+.cancelSelectionBtn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.cancelSelectionBtn:hover {
+    color: white;
+}

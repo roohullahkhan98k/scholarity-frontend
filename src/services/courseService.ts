@@ -44,8 +44,14 @@ export const courseService = {
 
     // 2.3 Add Lesson to Unit (POST /api/courses/:unitId/lessons)
     // 2.3 Add Lesson to Unit (POST /api/courses/:unitId/lessons)
-    async addLesson(unitId: string, data: { title: string; type: string; videoUrl?: string; resources?: string[]; order: number }): Promise<Lesson> {
+    async addLesson(unitId: string, data: { title: string; type: string; videoUrl?: string; resources?: any[]; order: number }): Promise<Lesson> {
         const response = await api.post(`/courses/${unitId}/lessons`, data);
+        return response.data;
+    },
+
+    // 2.3.1 Update Lesson (PUT /api/courses/lessons/:lessonId)
+    async updateLesson(lessonId: string, data: { title: string; type: string; resources: any[] }): Promise<Lesson> {
+        const response = await api.put(`/courses/lessons/${lessonId}`, data);
         return response.data;
     },
 
@@ -60,9 +66,37 @@ export const courseService = {
         return response.data;
     },
 
+    // Admin: Get Admin Courses (optionally filtered by teacherId)
+    async getAdminCourses(params?: { teacherId?: string; search?: string; categoryId?: string }): Promise<Course[]> {
+        const response = await api.get('/courses', { params });
+        // Robust data extraction
+        if (Array.isArray(response.data)) return response.data;
+        if (response.data?.data && Array.isArray(response.data.data)) return response.data.data;
+        if (response.data?.courses && Array.isArray(response.data.courses)) return response.data.courses;
+        return [];
+    },
+
+    // Admin: Bulk Delete Courses
+    async bulkDeleteCourses(params: { courseIds?: string[]; deleteAll?: boolean }): Promise<void> {
+        await api.post('/courses/bulk-delete', params);
+    },
+
+    // Admin: Delete Course
+    async deleteCourse(id: string): Promise<void> {
+        await api.delete(`/courses/${id}`);
+    },
+
+    // Admin: Toggle Course Status
+    async toggleStatus(id: string): Promise<{ status: string }> {
+        const response = await api.patch(`/courses/${id}/status`);
+        return response.data;
+    },
+
     // Get course by ID (for editing/details)
     async getCourse(id: string): Promise<Course> {
         const response = await api.get(`/courses/${id}`);
+        // Support nested response if API changes
+        if (response.data?.course) return response.data.course;
         return response.data;
     },
 

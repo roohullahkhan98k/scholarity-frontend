@@ -6,13 +6,16 @@ import DataTable, { Column } from '@/components/admin/DataTable';
 import EditTeacherModal from '@/components/admin/EditTeacherModal';
 import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
 import toast from 'react-hot-toast';
-import { GraduationCap, Star, Trash2, Users, Edit } from 'lucide-react';
+import { GraduationCap, Star, Trash2, Users, Edit, Eye } from 'lucide-react';
 import styles from './teachers.module.css';
+import TeacherDetailsModal from '@/components/admin/TeacherDetailsModal';
+import { startGlobalLoader, stopGlobalLoader } from '@/components/admin/GlobalLoader';
 
 function TeachersPageContent() {
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [loading, setLoading] = useState(true);
     const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
+    const [viewingTeacher, setViewingTeacher] = useState<Teacher | null>(null);
     const [updating, setUpdating] = useState(false);
 
     const [confirmModal, setConfirmModal] = useState<{
@@ -57,6 +60,7 @@ function TeachersPageContent() {
     const handleDelete = async (id: string) => {
         try {
             setConfirmModal(prev => ({ ...prev, isLoading: true }));
+            startGlobalLoader();
             await teacherService.deleteTeacher(id);
             toast.success('Teacher deleted successfully');
             setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -64,12 +68,15 @@ function TeachersPageContent() {
         } catch (err: any) {
             toast.error(err.response?.data?.message || 'Failed to delete teacher');
             setConfirmModal(prev => ({ ...prev, isLoading: false }));
+        } finally {
+            stopGlobalLoader();
         }
     };
 
     const handleUpdate = async (id: string, data: any) => {
         try {
             setUpdating(true);
+            startGlobalLoader();
             await teacherService.updateTeacher(id, data);
             toast.success('Teacher updated successfully');
             await loadTeachers();
@@ -78,6 +85,7 @@ function TeachersPageContent() {
             toast.error(err.response?.data?.message || 'Failed to update teacher');
         } finally {
             setUpdating(false);
+            stopGlobalLoader();
         }
     };
 
@@ -105,10 +113,10 @@ function TeachersPageContent() {
         {
             key: 'expertise',
             header: 'Expertise',
-            width: '30%',
+            width: '25%',
             render: (row) => (
                 <div style={{
-                    maxWidth: '350px',
+                    maxWidth: '250px',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -121,7 +129,7 @@ function TeachersPageContent() {
         {
             key: 'rating',
             header: 'Rating',
-            width: '15%',
+            width: '10%',
             render: (row) => (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Star size={16} fill="#f59e0b" color="#f59e0b" />
@@ -134,7 +142,7 @@ function TeachersPageContent() {
         {
             key: 'totalStudents',
             header: 'Students',
-            width: '12%',
+            width: '10%',
             render: (row) => (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Users size={16} color="var(--primary-color)" />
@@ -147,7 +155,7 @@ function TeachersPageContent() {
         {
             key: 'status',
             header: 'Status',
-            width: '13%',
+            width: '10%',
             render: (row) => {
                 if (!row.applicationStatus) return null;
                 const isPending = row.applicationStatus === 'PENDING';
@@ -168,9 +176,35 @@ function TeachersPageContent() {
         {
             key: 'actions',
             header: 'Actions',
-            width: '15%',
+            width: '20%',
             render: (row) => (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                        onClick={() => setViewingTeacher(row)}
+                        style={{
+                            padding: '0.5rem',
+                            border: '1px solid #d1d5db',
+                            borderRadius: 'var(--radius-md)',
+                            background: 'white',
+                            color: '#4b5563',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s',
+                        }}
+                        title="View Details"
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#f3f4f6';
+                            e.currentTarget.style.color = '#1f2937';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'white';
+                            e.currentTarget.style.color = '#4b5563';
+                        }}
+                    >
+                        <Eye size={16} />
+                    </button>
                     <button
                         onClick={() => setEditingTeacher(row)}
                         style={{
@@ -285,6 +319,13 @@ function TeachersPageContent() {
                 emptyMessage="No teachers found."
                 pageSize={10}
             />
+
+            {viewingTeacher && (
+                <TeacherDetailsModal
+                    teacher={viewingTeacher}
+                    onClose={() => setViewingTeacher(null)}
+                />
+            )}
 
             {editingTeacher && (
                 <EditTeacherModal

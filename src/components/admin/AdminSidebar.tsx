@@ -2,7 +2,7 @@
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
-import { LayoutDashboard, FileText, Users, TrendingUp, Settings, LogOut, BookOpen, Clock } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, TrendingUp, Settings, LogOut, BookOpen, Clock, GraduationCap } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
 export default function AdminSidebar() {
@@ -16,6 +16,7 @@ export default function AdminSidebar() {
 
     const navItems = [
         { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+        { name: 'Teachers', path: '/admin/teachers', icon: GraduationCap },
         { name: 'Users', path: '/admin/users', icon: Users },
         { name: 'Applications', path: '/admin/applications', icon: FileText },
         { name: 'Academic Setup', path: '/admin/academic', icon: BookOpen },

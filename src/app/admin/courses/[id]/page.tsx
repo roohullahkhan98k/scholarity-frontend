@@ -2,286 +2,468 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { adminService } from '@/services/adminService';
 import { courseService } from '@/services/courseService';
-import { Course } from '@/types';
-import LoadingButton from '@/components/LoadingButton/LoadingButton';
-import {
-    CheckCircle, XCircle, ArrowLeft, BookOpen,
-    Video, FileText, Clock, DollarSign, Calendar,
-    AlertCircle
-} from 'lucide-react';
-import styles from './course-detail.module.css';
+import { Course, Unit, Lesson } from '@/types';
+import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
 import toast from 'react-hot-toast';
-import { format } from 'date-fns';
+import {
+    BookOpen, ArrowLeft, Clock, FileText, Video,
+    Link as LinkIcon, Download, Trash2, Edit, Power, ChevronDown, ChevronRight, Play, ExternalLink, Plus, AlertCircle, MoreVertical
+} from 'lucide-react';
+import AdminEditCourseModal from '@/components/admin/AdminEditCourseModal';
+import AdminAddUnitModal from '@/components/admin/AdminAddUnitModal';
+import AdminAddLessonModal from '@/components/admin/AdminAddLessonModal';
+import AdminEditLessonModal from '@/components/admin/AdminEditLessonModal';
+import CourseVideoPlayer from '@/components/CourseVideoPlayer';
+import Link from 'next/link';
+import { getFileUrl } from '@/lib/utils';
+import { startGlobalLoader, stopGlobalLoader } from '@/components/admin/GlobalLoader';
 
-function AdminCourseDetailPageContent() {
+export default function CourseDetailPage() {
+    return (
+        <ProtectedRoute requiredRole="SUPER_ADMIN">
+            <CourseDetailsContent />
+        </ProtectedRoute>
+    );
+}
+
+function CourseDetailsContent() {
     const params = useParams();
     const router = useRouter();
-    const id = params.id as string;
+    const courseId = params.id as string;
 
     const [course, setCourse] = useState<any | null>(null);
-    const [logs, setLogs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
+    const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>({});
+    const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
-    // Reject Modal
-    const [showRejectModal, setShowRejectModal] = useState(false);
-    const [rejectReason, setRejectReason] = useState('');
+    // Modal States
+    const [isAddUnitOpen, setIsAddUnitOpen] = useState(false);
+    const [activeUnitForLesson, setActiveUnitForLesson] = useState<string | null>(null);
+    const [lessonToEdit, setLessonToEdit] = useState<any | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        isLoading?: boolean;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        isLoading: false,
+    });
 
     useEffect(() => {
-        if (id) {
-            loadData();
+        if (courseId) {
+            fetchData();
         }
-    }, [id]);
+    }, [courseId]);
 
-    const loadData = async () => {
+    const fetchData = async () => {
         try {
             setLoading(true);
-            const [courseData, logsData] = await Promise.all([
-                courseService.getCourse(id),
-                adminService.getCourseLogs(id)
-            ]);
-            setCourse(courseData);
-            setLogs(logsData);
-        } catch (error) {
+            const data = await courseService.getCourse(courseId);
+            setCourse(data);
+            if (data.units) {
+                const initialExpanded: Record<string, boolean> = {};
+                data.units.forEach((u: any) => initialExpanded[u.id] = true);
+                setExpandedUnits(initialExpanded);
+            }
+        } catch (error: any) {
             toast.error('Failed to load course details');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleApprove = async () => {
-        if (!confirm('Approve this course? It will become live immediately.')) return;
+    const toggleUnit = (unitId: string) => {
+        setExpandedUnits(prev => ({
+            ...prev,
+            [unitId]: !prev[unitId]
+        }));
+    };
 
+    const handleToggleStatus = async () => {
+        if (!course) return;
         try {
             setActionLoading(true);
-            await adminService.approveCourse(id);
-            toast.success('Course Approved!');
-            loadData(); // Refresh to see status update
-        } catch (error) {
-            toast.error('Failed to approve course');
+            startGlobalLoader();
+            const result = await courseService.toggleStatus(course.id);
+            setCourse({ ...course, status: result.status });
+            toast.success(`Course ${result.status === 'APPROVED' ? 'activated' : 'deactivated'}`);
+        } catch (error: any) {
+            toast.error('Failed to update status');
         } finally {
             setActionLoading(false);
+            stopGlobalLoader();
         }
     };
 
-    const handleReject = async () => {
-        if (!rejectReason) return toast.error('Reason is required');
-
+    const handleDeleteCourse = async () => {
+        if (!course) return;
         try {
-            setActionLoading(true);
-            await adminService.rejectCourse(id, rejectReason);
-            toast.success('Course Rejected');
-            setShowRejectModal(false);
-            setRejectReason('');
-            loadData();
-        } catch (error) {
-            toast.error('Failed to reject course');
+            setConfirmModal(prev => ({ ...prev, isLoading: true }));
+            startGlobalLoader();
+            await courseService.deleteCourse(course.id);
+            toast.success('Course deleted');
+            setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            router.push('/admin/dashboard');
+        } catch (error: any) {
+            toast.error('Failed to delete course');
         } finally {
-            setActionLoading(false);
+            setConfirmModal(prev => ({ ...prev, isLoading: false }));
+            stopGlobalLoader();
         }
     };
 
-    if (loading) return <div className="p-8 text-center">Loading course details...</div>;
-    if (!course) return <div className="p-8 text-center">Course not found</div>;
+    const confirmDelete = () => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Delete Course',
+            message: `Are you sure you want to delete "${course?.title}"? This action cannot be undone.`,
+            onConfirm: handleDeleteCourse,
+        });
+    };
+
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <div className="spinner"></div>
+                <style jsx>{`
+                    .spinner {
+                        border: 3px solid #f3f3f3;
+                        border-top: 3px solid var(--primary-color);
+                        border-radius: 50%;
+                        width: 40px;
+                        height: 40px;
+                        animation: spin 1s linear infinite;
+                    }
+                    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                `}</style>
+            </div>
+        );
+    }
+
+    if (!course) return <div style={{ padding: '2rem' }}>Course not found.</div>;
+
+    const statusColor = getStatusColor(course.status);
 
     return (
-        <div className={styles.container}>
-            {/* Header */}
-            <div className={styles.header}>
-                <div>
-                    <button
-                        onClick={() => router.back()}
-                        className="flex items-center gap-2 text-slate-500 hover:text-slate-800 mb-4"
-                    >
-                        <ArrowLeft size={16} /> Back
-                    </button>
-                    <div className={styles.titleSection}>
-                        <h1>{course.title}</h1>
-                        <div className={styles.badges}>
-                            <span className={`${styles.badge} ${styles[`status${course.status?.charAt(0) + course.status?.slice(1).toLowerCase()}`]}`}>
-                                {course.status}
-                            </span>
-                            <span className={`${styles.badge} ${styles.categoryBadge}`}>
-                                {course.category?.name} • {course.subject?.name}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', background: '#f9fafb', minHeight: '100vh' }}>
+            <button
+                onClick={() => router.back()}
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    background: 'none',
+                    border: 'none',
+                    color: '#6b7280',
+                    cursor: 'pointer',
+                    marginBottom: '1.5rem',
+                    fontSize: '0.875rem',
+                    fontWeight: 500
+                }}
+            >
+                <ArrowLeft size={16} />
+                Back to Courses
+            </button>
 
-            {/* Basic Info */}
-            <div className={styles.section}>
-                <h2 className={styles.sectionTitle}><BookOpen size={20} /> Course Overview</h2>
-                <div className={styles.infoGrid}>
-                    <div>
-                        <p className={styles.description}>{course.description}</p>
-                        {course.thumbnail && (
-                            <div className="mt-4">
-                                <p className={styles.label}>Thumbnail Preview</p>
-                                <img src={course.thumbnail} alt="Thumbnail" className={styles.thumbnailImage} />
-                            </div>
-                        )}
-                    </div>
-                    <div className={styles.metaInfo}>
-                        <div className={styles.metaItem}>
-                            <span className={styles.label}>Price</span>
-                            <span className={styles.value}>${course.price}</span>
+            {/* Header Section */}
+            <div style={{
+                background: 'white',
+                borderRadius: '16px',
+                padding: '2rem',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                display: 'flex',
+                gap: '2.5rem',
+                marginBottom: '2rem',
+                flexWrap: 'wrap',
+                alignItems: 'flex-start'
+            }}>
+                {/* Thumbnail Display */}
+                <div style={{
+                    width: '320px',
+                    height: '200px',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    flexShrink: 0,
+                    backgroundColor: '#1f2937',
+                    position: 'relative',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                }}>
+                    {course.thumbnail ? (
+                        <img
+                            src={getFileUrl(course.thumbnail)}
+                            alt={course.title}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                    ) : (
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#9ca3af', gap: '0.5rem' }}>
+                            <BookOpen size={48} />
+                            <span>No Thumbnail</span>
                         </div>
-                        <div className={styles.metaItem}>
-                            <span className={styles.label}>Created By</span>
-                            <span className={styles.value}>{course.teacher?.name}</span>
-                        </div>
-                        <div className={styles.metaItem}>
-                            <span className={styles.label}>Email</span>
-                            <span className="text-sm truncate">{course.teacher?.email}</span>
-                        </div>
-                    </div>
+                    )}
                 </div>
-            </div>
 
-            {/* Curriculum */}
-            <div className={styles.section}>
-                <h2 className={styles.sectionTitle}><Video size={20} /> Curriculum Content</h2>
-                {(!course.units || course.units.length === 0) ? (
-                    <p className="text-slate-500 italic">No curriculum yet.</p>
-                ) : (
-                    course.units.map((unit: any, i: number) => (
-                        <div key={unit.id} className={styles.unit}>
-                            <div className={styles.unitHeader}>
-                                Unit {i + 1}: {unit.title}
-                            </div>
+                {/* Info Block */}
+                <div style={{ flex: 1, minWidth: '300px' }}>
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
-                                {unit.lessons?.map((lesson: any, j: number) => (
-                                    <div key={lesson.id} className={styles.lesson}>
-                                        <div className={styles.lessonHeader}>
-                                            <span className="text-slate-400 font-mono text-sm">{(i + 1)}.{j + 1}</span>
-                                            {lesson.type === 'VIDEO' ? <Video size={16} className="text-blue-500" /> : <FileText size={16} className="text-orange-500" />}
-                                            <span>{lesson.title}</span>
-                                            <span className={styles.lessonType}>{lesson.type}</span>
-                                        </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                                    <span style={{
+                                        padding: '0.25rem 0.6rem',
+                                        borderRadius: '6px',
+                                        fontSize: '0.65rem',
+                                        fontWeight: 700,
+                                        background: statusColor.bg,
+                                        color: statusColor.text,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.05em',
+                                        border: `1px solid ${statusColor.text}20`
+                                    }}>
+                                        {course.status}
+                                    </span>
+                                    <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>Ref: #{course.id.slice(-6).toUpperCase()}</span>
+                                </div>
+                                <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#1e293b', margin: '0 0 0.75rem 0', lineHeight: 1.2 }}>
+                                    {course.title}
+                                </h1>
+                                <p style={{ color: '#475569', fontSize: '0.925rem', marginTop: '0', lineHeight: '1.6', maxWidth: '600px' }}>
+                                    {course.description || 'No description provided.'}
+                                </p>
+                            </div>
 
-                                        {/* Primary Video */}
-                                        {lesson.videoUrl && (
-                                            <div className="ml-8 text-sm text-slate-500 flex items-center gap-2">
-                                                <Video size={14} />
-                                                <a href={lesson.videoUrl} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline truncate max-w-md">
-                                                    {lesson.videoUrl}
-                                                </a>
-                                                <span className="text-xs bg-slate-100 px-1 rounded">Primary</span>
-                                            </div>
-                                        )}
-
-                                        {/* Resources / Secondary Content */}
-                                        {lesson.resources && lesson.resources.length > 0 && (
-                                            <div className={styles.lessonResources}>
-                                                {lesson.resources.map((res: any, k: number) => (
-                                                    <a key={k} href={res.url} target="_blank" rel="noreferrer" className={styles.resourceTag}>
-                                                        {res.type === 'VIDEO' ? <Video size={12} /> : <FileText size={12} />}
-                                                        {res.title || 'Resource'}
-                                                    </a>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
+                            {/* Action Buttons */}
+                            <div style={{ display: 'flex', gap: '0.75rem' }}>
+                                <button
+                                    onClick={() => setIsEditModalOpen(true)}
+                                    style={{
+                                        padding: '0.5rem 1rem',
+                                        borderRadius: '10px',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        background: 'white',
+                                        color: '#374151',
+                                        border: '1px solid #e2e8f0',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                                        transition: 'all 0.2s',
+                                    }}
+                                >
+                                    <Edit size={16} />
+                                    Edit Course
+                                </button>
+                                <button
+                                    onClick={handleToggleStatus}
+                                    disabled={actionLoading}
+                                    style={{
+                                        padding: '0.5rem 1rem',
+                                        borderRadius: '10px',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 600,
+                                        cursor: actionLoading ? 'not-allowed' : 'pointer',
+                                        background: course.status === 'APPROVED' ? '#fff1f2' : '#f0fdf4',
+                                        color: course.status === 'APPROVED' ? '#e11d48' : '#15803d',
+                                        border: '1px solid',
+                                        borderColor: course.status === 'APPROVED' ? '#fecdd3' : '#bbf7d0',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        opacity: actionLoading ? 0.7 : 1,
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {actionLoading ? <div className="spinner-sm" /> : <Power size={16} />}
+                                    {course.status === 'APPROVED' ? 'Deactivate' : 'Activate'}
+                                </button>
+                                <button
+                                    onClick={confirmDelete}
+                                    style={{
+                                        padding: '0.5rem 1rem',
+                                        borderRadius: '10px',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        background: 'white',
+                                        color: '#e11d48',
+                                        border: '1px solid #fee2e2',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    <Trash2 size={16} />
+                                    Delete
+                                </button>
                             </div>
                         </div>
-                    ))
-                )}
+                    </div>
+
+                    <div style={{
+                        display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.5rem',
+                        padding: '1.5rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0'
+                    }}>
+                        <div>
+                            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 600, letterSpacing: '0.05em' }}>Category</div>
+                            <div style={{ fontWeight: 600, color: '#1e293b', marginTop: '0.25rem' }}>{course.category?.name || 'Uncategorized'}</div>
+                        </div>
+                        <div>
+                            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 600, letterSpacing: '0.05em' }}>Price</div>
+                            <div style={{ fontWeight: 700, color: 'var(--primary-color)', fontSize: '1.125rem', marginTop: '0.25rem' }}>
+                                {course.price > 0 ? `$${course.price}` : 'Free'}
+                            </div>
+                        </div>
+                        <div>
+                            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 600, letterSpacing: '0.05em' }}>Instructor</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
+                                <div style={{
+                                    width: '24px', height: '24px', borderRadius: '50%', background: '#3b82f6', color: 'white',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 600
+                                }}>
+                                    {course.teacher?.user?.name?.charAt(0) || 'T'}
+                                </div>
+                                <span style={{ fontWeight: 600, color: '#1e293b' }}>
+                                    {course.teacher?.user?.name || 'Unknown'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Logs */}
-            <div className={styles.section}>
-                <h2 className={styles.sectionTitle}><Clock size={20} /> Approval History</h2>
-                {logs.length === 0 ? (
-                    <p className="text-slate-500">No history available.</p>
+            {/* Video Player Section */}
+            {activeVideo && (
+                <div style={{ marginBottom: '2rem', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+                    <div style={{ background: '#111827', padding: '1rem', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Video size={20} /> Now Playing
+                        </span>
+                        <button onClick={() => setActiveVideo(null)} style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>Close Player</button>
+                    </div>
+                    <CourseVideoPlayer url={activeVideo} />
+                </div>
+            )}
+
+            {/* Content Section */}
+            <div style={{ maxWidth: '850px', margin: '0 auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#111827', margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <BookOpen className="text-blue-600" />
+                        Course Content
+                    </h2>
+                    <button
+                        onClick={() => setIsAddUnitOpen(true)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', background: '#1e293b', color: 'white', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
+                    >
+                        <Plus size={18} /> Add Unit
+                    </button>
+                </div>
+
+                {!course.units || course.units.length === 0 ? (
+                    <div style={{ padding: '3rem', background: 'white', borderRadius: '16px', textAlign: 'center', color: '#6b7280', border: '1px dashed #e5e7eb' }}>
+                        <div style={{ marginBottom: '1rem' }}><FileText size={48} opacity={0.3} /></div>
+                        No units available for this course.
+                    </div>
                 ) : (
-                    <div>
-                        {logs.map((log, idx) => (
-                            <div key={idx} className={styles.logItem}>
-                                <div className={styles.logMeta}>
-                                    <div>{format(new Date(log.createdAt), 'MMM d, yyyy')}</div>
-                                    <div className="text-xs text-slate-400">{format(new Date(log.createdAt), 'h:mm a')}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {course.units.map((unit: any) => (
+                            <div key={unit.id} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: '1rem', background: '#f8fafc' }}>
+                                    <button
+                                        onClick={() => toggleUnit(unit.id)}
+                                        style={{ flex: 1, padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'transparent', border: 'none', cursor: 'pointer' }}
+                                    >
+                                        <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, background: '#e2e8f0', padding: '0.125rem 0.5rem', borderRadius: '4px' }}>UNIT {unit.order}</span>
+                                            {unit.title}
+                                        </h3>
+                                        {expandedUnits[unit.id] ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveUnitForLesson(unit.id)}
+                                        style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.5rem 0.8rem', background: 'white', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, color: '#374151', cursor: 'pointer' }}
+                                    >
+                                        <Plus size={16} /> Add Lesson
+                                    </button>
                                 </div>
-                                <div className={styles.logContent}>
-                                    <div className={`${styles.logAction} ${log.action === 'APPROVED' ? 'text-green-600' :
-                                            log.action === 'REJECTED' ? 'text-red-600' : 'text-blue-600'
-                                        }`}>
-                                        {log.action}
+
+                                {expandedUnits[unit.id] && (
+                                    <div style={{ padding: '0.5rem 0' }}>
+                                        {unit.lessons?.map((lesson: any) => (
+                                            <div key={lesson.id} style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #f1f5f9' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                        <div style={{ padding: '0.5rem', borderRadius: '8px', background: lesson.type === 'VIDEO' ? '#eff6ff' : '#fff7ed', color: lesson.type === 'VIDEO' ? '#2563eb' : '#ea580c' }}>
+                                                            {lesson.type === 'VIDEO' ? <Video size={18} /> : <FileText size={18} />}
+                                                        </div>
+                                                        <div style={{ fontSize: '1rem', fontWeight: 600 }}>{lesson.title}</div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                        {(lesson.videoUrl || lesson.url) && lesson.type === 'VIDEO' && (
+                                                            <button onClick={() => setActiveVideo(lesson.videoUrl || lesson.url)} style={{ padding: '0.4rem 0.8rem', borderRadius: '6px', background: '#2563eb', color: 'white', border: 'none', cursor: 'pointer', fontSize: '0.8rem' }}>Watch</button>
+                                                        )}
+                                                        <button onClick={() => setLessonToEdit(lesson)} style={{ padding: '0.4rem', borderRadius: '6px', border: '1px solid #e2e8f0', cursor: 'pointer' }}><Edit size={16} /></button>
+                                                    </div>
+                                                </div>
+                                                {/* Resources */}
+                                                {lesson.resources?.length > 0 && (
+                                                    <div style={{ marginTop: '0.75rem', paddingLeft: '3.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                        {lesson.resources.map((res: any, idx: number) => (
+                                                            <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 1rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                                                <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>{res.title}</div>
+                                                                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                                                                    <a href={getFileUrl(res.url)} target="_blank" rel="noopener" style={{ color: '#2563eb', fontSize: '0.75rem' }}>View</a>
+                                                                    {['PDF', 'NOTE', 'SYLLABUS'].includes(res.type) && <a href={getFileUrl(res.url)} download style={{ color: '#2563eb', fontSize: '0.75rem' }}>Download</a>}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
                                     </div>
-                                    {log.comment && (
-                                        <div className={styles.logComment}>
-                                            <AlertCircle size={16} className="inline mr-2" />
-                                            {log.comment}
-                                        </div>
-                                    )}
-                                </div>
+                                )}
                             </div>
                         ))}
                     </div>
                 )}
             </div>
 
-            {/* Footer Actions */}
-            <div className={styles.fixedFooter}>
-                <button
-                    onClick={() => setShowRejectModal(true)}
-                    className={styles.rejectBtn}
-                    disabled={actionLoading}
-                >
-                    <XCircle size={18} /> Reject
-                </button>
-                <button
-                    onClick={handleApprove}
-                    className={styles.approveBtn}
-                    disabled={actionLoading}
-                >
-                    <CheckCircle size={18} /> Approve
-                </button>
-            </div>
+            {/* Modals */}
+            {isEditModalOpen && <AdminEditCourseModal course={course} onClose={() => setIsEditModalOpen(false)} onSuccess={fetchData} />}
+            {isAddUnitOpen && <AdminAddUnitModal courseId={course.id} onClose={() => setIsAddUnitOpen(false)} onSuccess={fetchData} nextOrder={(course.units?.length || 0) + 1} />}
+            {activeUnitForLesson && <AdminAddLessonModal unitId={activeUnitForLesson} onClose={() => setActiveUnitForLesson(null)} onSuccess={fetchData} nextOrder={(course.units?.find((u: any) => u.id === activeUnitForLesson)?.lessons?.length || 0) + 1} />}
+            {lessonToEdit && <AdminEditLessonModal lesson={lessonToEdit} onClose={() => setLessonToEdit(null)} onSuccess={fetchData} />}
 
-            {/* Reject Modal */}
-            {showRejectModal && (
-                <>
-                    <div className={styles.overlay} onClick={() => setShowRejectModal(false)} />
-                    <div className={styles.rejectDialog}>
-                        <h3 className="text-lg font-bold mb-2">Reject Course</h3>
-                        <p className="text-slate-500 text-sm">Please provide a reason so the teacher can improve.</p>
-                        <textarea
-                            value={rejectReason}
-                            onChange={(e) => setRejectReason(e.target.value)}
-                            className={styles.textarea}
-                            placeholder="e.g. Video quality in Unit 2 is too low..."
-                            autoFocus
-                        />
-                        <div className="flex justify-end gap-2">
-                            <button
-                                onClick={() => setShowRejectModal(false)}
-                                className="px-4 py-2 rounded text-slate-600 hover:bg-slate-100"
-                            >
-                                Cancel
-                            </button>
-                            <LoadingButton
-                                onClick={handleReject}
-                                isLoading={actionLoading}
-                                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                            >
-                                Reject Course
-                            </LoadingButton>
-                        </div>
-                    </div>
-                </>
-            )}
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                isDanger={true}
+                isLoading={confirmModal.isLoading}
+            />
         </div>
     );
 }
 
-export default function AdminCourseDetailPage() {
-    return (
-        <ProtectedRoute requiredRole="SUPER_ADMIN">
-            <AdminCourseDetailPageContent />
-        </ProtectedRoute>
-    );
+function getStatusColor(status: string) {
+    switch (status) {
+        case 'APPROVED': return { bg: '#d1fae5', text: '#10b981' };
+        case 'PENDING': return { bg: '#fef3c7', text: '#f59e0b' };
+        case 'REJECTED': return { bg: '#fee2e2', text: '#ef4444' };
+        default: return { bg: '#f3f4f6', text: '#6b7280' };
+    }
 }

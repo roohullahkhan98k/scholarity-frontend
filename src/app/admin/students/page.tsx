@@ -8,6 +8,7 @@ import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
 import toast from 'react-hot-toast';
 import { Users, Trash2, BookOpen, Award, Edit } from 'lucide-react';
 import styles from './students.module.css';
+import { startGlobalLoader, stopGlobalLoader } from '@/components/admin/GlobalLoader';
 
 function StudentsPageContent() {
     const [students, setStudents] = useState<Student[]>([]);
@@ -58,6 +59,7 @@ function StudentsPageContent() {
     const handleDelete = async (id: string) => {
         try {
             setConfirmModal(prev => ({ ...prev, isLoading: true }));
+            startGlobalLoader();
             await studentService.deleteStudent(id);
             toast.success('Student deleted successfully');
             setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -65,12 +67,15 @@ function StudentsPageContent() {
         } catch (err: any) {
             toast.error(err.response?.data?.message || 'Failed to delete student');
             setConfirmModal(prev => ({ ...prev, isLoading: false }));
+        } finally {
+            stopGlobalLoader();
         }
     };
 
     const handleUpdate = async (id: string, data: any) => {
         try {
             setUpdating(true);
+            startGlobalLoader();
             await studentService.updateStudent(id, data);
             toast.success('Student updated successfully');
             await loadStudents();
@@ -79,6 +84,7 @@ function StudentsPageContent() {
             toast.error(err.response?.data?.message || 'Failed to update student');
         } finally {
             setUpdating(false);
+            stopGlobalLoader();
         }
     };
 

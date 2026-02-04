@@ -51,6 +51,12 @@ export interface Course {
     price: number;
     thumbnail: string;
     status: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED';
+    // Extended fields
+    category?: { id: string; name: string };
+    subject?: { id: string; name: string };
+    teacher?: { id: string; user?: { name: string; email: string }; name?: string; email?: string };
+    units?: Unit[];
+    totalStudents?: number;
 }
 
 export interface CreateCourseDto {
@@ -67,6 +73,7 @@ export interface Unit {
     courseId: string;
     title: string;
     order: number;
+    lessons?: Lesson[];
 }
 
 export interface Lesson {
