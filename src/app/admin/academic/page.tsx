@@ -21,6 +21,7 @@ import {
     Edit2,
     Trash2
 } from 'lucide-react';
+import BulkActionBar, { BulkAction } from '@/components/BulkActionBar/BulkActionBar';
 import styles from './academic.module.css';
 
 type Tab = 'CATEGORIES' | 'SUBJECTS';
@@ -41,6 +42,15 @@ export default function AcademicPage() {
 
     // Bulk Selection
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+    const bulkActions: BulkAction[] = [
+        {
+            label: `Delete Selected ${activeTab === 'CATEGORIES' ? 'Categories' : 'Subjects'}`,
+            onClick: () => openBulkDeleteModal(),
+            icon: <Trash2 size={18} />,
+            variant: 'danger'
+        }
+    ];
 
     // Modals & Action States
     const [isAddingCategory, setIsAddingCategory] = useState(false);
@@ -374,24 +384,6 @@ export default function AcademicPage() {
                     </div>
 
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        {selectedIds.length > 0 && (
-                            <button
-                                className="btn"
-                                onClick={openBulkDeleteModal}
-                                style={{
-                                    background: '#fee2e2',
-                                    color: '#dc2626',
-                                    border: '1px solid #fecaca',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.5rem',
-                                    fontWeight: 500
-                                }}
-                            >
-                                <Trash2 size={18} />
-                                <span>Bulk Delete ({selectedIds.length})</span>
-                            </button>
-                        )}
                         <button
                             className="btn btn-primary"
                             onClick={() => activeTab === 'CATEGORIES' ? setIsAddingCategory(true) : setIsAddingSubject(true)}
@@ -662,6 +654,12 @@ export default function AcademicPage() {
                     isDanger={true}
                     confirmText="Yes, Delete"
                     isLoading={confirmModal.isLoading}
+                />
+
+                <BulkActionBar
+                    selectedCount={selectedIds.length}
+                    actions={bulkActions}
+                    onCancel={() => setSelectedIds([])}
                 />
             </div>
         </ProtectedRoute>
