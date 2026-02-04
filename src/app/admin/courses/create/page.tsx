@@ -2,10 +2,10 @@
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import CourseCreateWizard from '@/components/courses/CourseCreateWizard';
 
-export default function TeacherCourseCreatePage() {
+export default function AdminCourseCreatePage() {
     return (
-        <ProtectedRoute requiredRole="TEACHER">
-            <CourseCreateWizard returnPath="/teacher/dashboard" />
+        <ProtectedRoute requiredRole="SUPER_ADMIN">
+            <CourseCreateWizard returnPath="/admin/dashboard" />
         </ProtectedRoute>
     );
 }

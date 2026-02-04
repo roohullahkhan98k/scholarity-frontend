@@ -15,6 +15,7 @@ import AdminAddUnitModal from '@/components/admin/AdminAddUnitModal';
 import AdminAddLessonModal from '@/components/admin/AdminAddLessonModal';
 import AdminEditLessonModal from '@/components/admin/AdminEditLessonModal';
 import CourseVideoPlayer from '@/components/CourseVideoPlayer';
+import ResourceItem from '@/components/courses/ResourceItem';
 import Link from 'next/link';
 import { getFileUrl } from '@/lib/utils';
 import { startGlobalLoader, stopGlobalLoader } from '@/components/admin/GlobalLoader';
@@ -418,15 +419,14 @@ function CourseDetailsContent() {
                                                 </div>
                                                 {/* Resources */}
                                                 {lesson.resources?.length > 0 && (
-                                                    <div style={{ marginTop: '0.75rem', paddingLeft: '3.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                    <div style={{ marginTop: '0.75rem', paddingLeft: '3.5rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                                                         {lesson.resources.map((res: any, idx: number) => (
-                                                            <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 1rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                                                                <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>{res.title}</div>
-                                                                <div style={{ display: 'flex', gap: '0.25rem' }}>
-                                                                    <a href={getFileUrl(res.url)} target="_blank" rel="noopener" style={{ color: '#2563eb', fontSize: '0.75rem' }}>View</a>
-                                                                    {['PDF', 'NOTE', 'SYLLABUS'].includes(res.type) && <a href={getFileUrl(res.url)} download style={{ color: '#2563eb', fontSize: '0.75rem' }}>Download</a>}
-                                                                </div>
-                                                            </div>
+                                                            <ResourceItem
+                                                                key={idx}
+                                                                resource={res}
+                                                                thumbnail={course.thumbnail}
+                                                                onWatch={(url) => setActiveVideo(url)}
+                                                            />
                                                         ))}
                                                     </div>
                                                 )}

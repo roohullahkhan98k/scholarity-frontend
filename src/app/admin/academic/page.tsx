@@ -9,6 +9,8 @@ import { useDebounce } from '@/hooks/useDebounce';
 import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
 import LoadingButton from '@/components/LoadingButton/LoadingButton';
 import toast from 'react-hot-toast';
+import { startGlobalLoader, stopGlobalLoader } from '@/components/admin/GlobalLoader';
+import PremiumSelect from '@/components/PremiumSelect/PremiumSelect';
 import {
     BookOpen,
     Plus,
@@ -125,6 +127,7 @@ export default function AcademicPage() {
         e.preventDefault();
         try {
             setActionLoading(true);
+            startGlobalLoader();
             await academicService.createCategory(newCategoryName);
             setNewCategoryName('');
             setIsAddingCategory(false);
@@ -134,6 +137,7 @@ export default function AcademicPage() {
             toast.error(err.response?.data?.message || 'Failed to create category');
         } finally {
             setActionLoading(false);
+            stopGlobalLoader();
         }
     };
 
@@ -142,6 +146,7 @@ export default function AcademicPage() {
         if (!selectedCategoryId) return;
         try {
             setActionLoading(true);
+            startGlobalLoader();
             await academicService.createSubject(newSubjectName, selectedCategoryId);
             setNewSubjectName('');
             setIsAddingSubject(false);
@@ -151,6 +156,7 @@ export default function AcademicPage() {
             toast.error(err.response?.data?.message || 'Failed to create subject');
         } finally {
             setActionLoading(false);
+            stopGlobalLoader();
         }
     };
 
@@ -159,6 +165,7 @@ export default function AcademicPage() {
         if (!editingCategory) return;
         try {
             setActionLoading(true);
+            startGlobalLoader();
             await academicService.updateCategory(editingCategory.id, editingCategory.name);
             setEditingCategory(null);
             toast.success('Category updated successfully');
@@ -167,6 +174,7 @@ export default function AcademicPage() {
             toast.error(err.response?.data?.message || 'Failed to update category');
         } finally {
             setActionLoading(false);
+            stopGlobalLoader();
         }
     };
 
@@ -175,6 +183,7 @@ export default function AcademicPage() {
         if (!editingSubject) return;
         try {
             setActionLoading(true);
+            startGlobalLoader();
             await academicService.updateSubject(editingSubject.id, editingSubject.name, editingSubject.categoryId);
             setEditingSubject(null);
             toast.success('Subject updated successfully');
@@ -183,6 +192,7 @@ export default function AcademicPage() {
             toast.error(err.response?.data?.message || 'Failed to update subject');
         } finally {
             setActionLoading(false);
+            stopGlobalLoader();
         }
     };
 
@@ -198,6 +208,7 @@ export default function AcademicPage() {
     const handleDeleteCategory = async (id: string) => {
         try {
             setConfirmModal(prev => ({ ...prev, isLoading: true }));
+            startGlobalLoader();
             await academicService.deleteCategory(id);
             toast.success('Category deleted successfully');
             setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -205,6 +216,8 @@ export default function AcademicPage() {
         } catch (err: any) {
             toast.error(err.response?.data?.message || 'Failed to delete category');
             setConfirmModal(prev => ({ ...prev, isLoading: false }));
+        } finally {
+            stopGlobalLoader();
         }
     };
 
@@ -220,6 +233,7 @@ export default function AcademicPage() {
     const handleDeleteSubject = async (id: string) => {
         try {
             setConfirmModal(prev => ({ ...prev, isLoading: true }));
+            startGlobalLoader();
             await academicService.deleteSubject(id);
             toast.success('Subject deleted successfully');
             setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -227,6 +241,8 @@ export default function AcademicPage() {
         } catch (err: any) {
             toast.error(err.response?.data?.message || 'Failed to delete subject');
             setConfirmModal(prev => ({ ...prev, isLoading: false }));
+        } finally {
+            stopGlobalLoader();
         }
     };
 
@@ -244,6 +260,7 @@ export default function AcademicPage() {
     const handleBulkDelete = async () => {
         try {
             setConfirmModal(prev => ({ ...prev, isLoading: true }));
+            startGlobalLoader();
             if (activeTab === 'CATEGORIES') {
                 await academicService.bulkDeleteCategories(selectedIds);
                 toast.success('Categories deleted successfully');
@@ -258,6 +275,8 @@ export default function AcademicPage() {
         } catch (err: any) {
             toast.error(err.response?.data?.message || 'Failed to delete selected items');
             setConfirmModal(prev => ({ ...prev, isLoading: false }));
+        } finally {
+            stopGlobalLoader();
         }
     };
 
@@ -519,18 +538,14 @@ export default function AcademicPage() {
                             </div>
                             <form onSubmit={handleCreateSubject}>
                                 <div className={styles.formGroup}>
-                                    <label>Parent Category</label>
-                                    <select
+                                    <PremiumSelect
+                                        label="Parent Category"
+                                        options={categories}
                                         value={selectedCategoryId}
-                                        onChange={(e) => setSelectedCategoryId(e.target.value)}
-                                        required
-                                        className={styles.modalSelect}
-                                    >
-                                        <option value="">Select Category</option>
-                                        {categories.map(cat => (
-                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                        ))}
-                                    </select>
+                                        onChange={(val) => setSelectedCategoryId(val)}
+                                        placeholder="Select Category"
+                                        loading={loading}
+                                    />
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label>Subject Name</label>
@@ -605,18 +620,14 @@ export default function AcademicPage() {
                             </div>
                             <form onSubmit={handleUpdateSubject}>
                                 <div className={styles.formGroup}>
-                                    <label>Parent Category</label>
-                                    <select
+                                    <PremiumSelect
+                                        label="Parent Category"
+                                        options={categories}
                                         value={editingSubject.categoryId}
-                                        onChange={(e) => setEditingSubject({ ...editingSubject, categoryId: e.target.value })}
-                                        required
-                                        className={styles.modalSelect}
-                                    >
-                                        <option value="">Select Category</option>
-                                        {categories.map(cat => (
-                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                        ))}
-                                    </select>
+                                        onChange={(val) => setEditingSubject({ ...editingSubject, categoryId: val })}
+                                        placeholder="Select Category"
+                                        loading={loading}
+                                    />
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label>Subject Name</label>

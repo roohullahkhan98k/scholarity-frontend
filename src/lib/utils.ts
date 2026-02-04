@@ -9,9 +9,9 @@ export const getFileUrl = (path: string | null | undefined): string => {
         return path;
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
-    // Remove /api from the end if it exists
-    const baseUrl = apiUrl.endsWith('/api') ? apiUrl.replace(/\/api$/, '') : apiUrl;
+    const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').trim();
+    // Strip /api or /api/ from the end
+    const baseUrl = apiUrl.replace(/\/api\/?$/, '');
 
     // Ensure path starts with /
     const cleanPath = path.startsWith('/') ? path : `/${path}`;

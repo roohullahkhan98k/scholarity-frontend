@@ -4,6 +4,7 @@ import { X, Plus, Trash2, Video, FileText, Link as LinkIcon, BookOpen, Layers, U
 import { courseService } from '@/services/courseService';
 import { uploadService } from '@/services/uploadService';
 import LoadingButton from '@/components/LoadingButton/LoadingButton';
+import ResourceItem from '@/components/courses/ResourceItem';
 import styles from './AdminAddLessonModal.module.css';
 import { getFileUrl } from '@/lib/utils';
 
@@ -94,14 +95,6 @@ const AdminAddLessonModal: React.FC<AdminAddLessonModalProps> = ({ unitId, onClo
         }
     };
 
-    const getIcon = (type: ResourceType) => {
-        switch (type) {
-            case 'VIDEO': return <Video size={16} color="#3b82f6" />;
-            case 'NOTE': return <FileText size={16} color="#22c55e" />;
-            case 'LINK': return <LinkIcon size={16} color="#a855f7" />;
-            case 'SYLLABUS': return <BookOpen size={16} color="#f97316" />;
-        }
-    };
 
     return (
         <div className={styles.overlay}>
@@ -221,24 +214,12 @@ const AdminAddLessonModal: React.FC<AdminAddLessonModalProps> = ({ unitId, onClo
                             {/* Resource List Preview */}
                             <div className={styles.resourceList}>
                                 {resources.map((res, idx) => (
-                                    <div key={idx} className={styles.resourceItem}>
-                                        <div className={styles.resourceInfo}>
-                                            <div className={styles.typeIcon}>
-                                                {getIcon(res.type)}
-                                            </div>
-                                            <div className={styles.resourceDetails}>
-                                                <div>{res.title}</div>
-                                                <div title={res.url}>{res.url}</div>
-                                            </div>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => removeResource(idx)}
-                                            className={styles.deleteBtn}
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
+                                    <ResourceItem
+                                        key={idx}
+                                        resource={res}
+                                        compact={true}
+                                        onDelete={() => removeResource(idx)}
+                                    />
                                 ))}
                                 {resources.length === 0 && (
                                     <div className={styles.emptyState}>

@@ -55,6 +55,7 @@ export interface Course {
     category?: { id: string; name: string };
     subject?: { id: string; name: string };
     teacher?: { id: string; user?: { name: string; email: string }; name?: string; email?: string };
+    teacherId?: string;
     units?: Unit[];
     totalStudents?: number;
 }
@@ -66,6 +67,7 @@ export interface CreateCourseDto {
     subjectId: string;
     price: number;
     thumbnail: string;
+    teacherId?: string;
 }
 
 export interface Unit {

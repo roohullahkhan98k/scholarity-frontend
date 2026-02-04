@@ -129,7 +129,7 @@ function AdminDashboardContent() {
                         <Layout size={16} />
                         <span>Instructors</span>
                     </Link>
-                    <Link href="/courses/create" className={`${styles.quickActionBtn} ${styles.primaryAction}`}>
+                    <Link href="/admin/courses/create" className={`${styles.quickActionBtn} ${styles.primaryAction}`}>
                         <Plus size={16} />
                         <span>New Course</span>
                     </Link>
